@@ -7,20 +7,21 @@
 <style>
     /* ===== Sequence-of-Events style modal (reused for CBA) ===== */
 
+
 .modal-soe {
-  
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 
-    width: min(900px, 92vw);
-    max-height: 85vh;
+  width: min(900px, 92vw);
+  max-height: 85vh;         /* ✅ limits modal height */
+  display: flex;
+  flex-direction: column;  /* ✅ enables header/body/footer layout */
 
-    z-index: 3000; /* higher than workspace */
-    display: block;
-
+  z-index: 3000;
 }
+
 
 /* Header bar */
 .modal-soe-header {
@@ -32,29 +33,39 @@
 }
 
 /* Outer body */
+
 .modal-soe-body {
-  background: #f7f8fb;
+  flex: 1 1 auto;      /* ✅ takes remaining space */
+  min-height: 0;
+  overflow-y: auto;    /* ✅ scroll here */
   padding: 14px;
+  background: #f7f8fb;
 }
 
+
 /* Inner highlighted content box */
+
 .modal-soe-content {
   background: #ffffff;
   border: 2px solid #ffdd00;
   border-radius: 12px;
   padding: 14px;
-  min-height: 120px;
 }
 
+
 /* Footer buttons area */
+
 .modal-soe-footer {
+  flex: 0 0 auto;      /* ✅ never shrinks or scrolls */
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+
   padding: 14px 18px;
   background: #f7f8fb;
   border-top: 1px solid var(--border);
 }
+
 </style>
 <style>
 /* ===============================
