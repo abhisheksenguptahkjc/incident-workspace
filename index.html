@@ -5,6 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>HKJC Incident Workspace V4.0</title>
 <style>
+    /* ===== Sequence-of-Events style modal (reused for CBA) ===== */
+
+.modal-soe {
+  
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: min(900px, 92vw);
+    max-height: 85vh;
+
+    z-index: 3000; /* higher than workspace */
+    display: block;
+
+}
+
+/* Header bar */
+.modal-soe-header {
+  background: #0e357b;
+  color: #fff;
+  font-weight: 700;
+  padding: 14px 18px;
+  font-size: 18px;
+}
+
+/* Outer body */
+.modal-soe-body {
+  background: #f7f8fb;
+  padding: 14px;
+}
+
+/* Inner highlighted content box */
+.modal-soe-content {
+  background: #ffffff;
+  border: 2px solid #ffdd00;
+  border-radius: 12px;
+  padding: 14px;
+  min-height: 120px;
+}
+
+/* Footer buttons area */
+.modal-soe-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #f7f8fb;
+  border-top: 1px solid var(--border);
+}
+</style>
+<style>
+/* ===============================
+   Semantic Pill Action Buttons
+   =============================== */
+
+.btn.icon-pill {
+  padding: 6px;
+  min-width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.btn.icon-pill svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* Hover polish */
+.btn.icon-pill:hover {
+  filter: brightness(0.96);
+}
+
+/* Focus accessibility */
+.btn.icon-pill:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+</style>
+<style>
+  #layout.cba-fullscreen {
+    grid-template-columns: 1fr;
+  }
+  #layout.cba-fullscreen #incidentSidebar {
+    display: none;
+  }
+</style>
+
+<style>
     #powerBiModal {
   border: none;
   border-radius: 12px;
@@ -613,31 +707,7 @@ dialog#workLogDialog,
   .dlg-fallback .modal{max-width:1100px;width:96vw;margin:10vh auto}
 </style>
 
-<style>
-/* ===== DR Communication (scoped to #dr-comm) ===== */
-#dr-comm .dr-hosts { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 0.5rem; color:#013467 }
-#dr-comm .dr-host { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; }
-#dr-comm .dr-host header{ display:grid; grid-template-columns:auto 1fr; gap:.5rem; align-items:center; padding:.5rem .75rem; border-bottom:1px solid var(--border); background:#f9fafb }
-#dr-comm .dr-accordion-toggle{ cursor:pointer; padding:.45rem .7rem; border:1px solid var(--border); border-radius:8px; background:#fff; color:#111827; display:inline-flex; align-items:center; gap:.45rem; font-size:.92rem; }
-#dr-comm .dr-accordion-icon{ width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:7px solid #374151; transition:transform .15s ease }
-#dr-comm .dr-host.expanded .dr-accordion-icon{ transform: rotate(180deg); }
-#dr-comm .dr-panel{ display:none }
-#dr-comm .dr-host.expanded .dr-panel{ display:block }
-#dr-comm .dr-card{ border:1px solid var(--border); border-radius:12px; background:#fff; padding:12px; width:100%; margin-bottom:12px }
-#dr-comm .dr-label{ color: var(--blue-700); font-weight:700; margin:0 0 6px 0 }
-#dr-comm .dr-progress{ width:100%; height:10px; background:#f3f4f6; border-radius:999px; overflow:hidden; border:1px solid #e5e7eb }
-#dr-comm .dr-progress-bar{ height:100%; background:#16a34a; transition: width .15s ease }
-#dr-comm .dr-table{ width:100%; border-collapse:collapse }
-#dr-comm .dr-table th, #dr-comm .dr-table td{ border:1px solid var(--border); padding:6px; vertical-align:top }
-#dr-comm .dr-table thead th{ background:#eaf1ff; color:#0b2a63; text-align:left }
-/* Yellow pill buttons (scoped) */
-#dr-comm button, #dr-comm .dr-btn{ background: var(--yellow-500); color:#111827; border:none; border-radius:10px; padding:.55rem .95rem; font-weight:600; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.15); }
-#dr-comm button:hover{ filter:brightness(0.98) }
-#dr-comm .dr-impact-search{ width:100%; border:1px solid var(--border); border-radius:8px; padding:.4rem .6rem; margin-bottom:.5rem; }
-#dr-comm .dr-impact-select{ width:100%; min-height:8rem }
-#dr-comm .impact-row.collapsed .dr-impact-search,
-#dr-comm .impact-row.collapsed .dr-impact-select{ display:none }
-</style>
+
 
 
 <style>
@@ -704,12 +774,12 @@ dialog#workLogDialog,
 .ws-table th.ws-num-col, .ws-table td.ws-num-col{ width:34px; white-space:nowrap; text-align:center; }
 .ws-table td.ws-result, .ws-table textarea.ws-result-text{ white-space:pre-wrap; word-break:break-word; }
 </style>
-
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <header>
     <div class="brand">
-      <div class="brand-text"><h1>HKJC Incident Workspace 4.0</h1><div class="brand-sub"></div></div></div>
+      <div class="brand-text"><h1>HKJC Incident Workspace 4.6</h1><div class="brand-sub"></div></div></div>
     <!-- Shared feature tabs -->
     <nav role="tablist" aria-label="Features" id="featureTabs">
       <button data-tab="sitrep" role="tab" aria-selected="true" aria-controls="sitrep">Sit-Rep</button>
@@ -718,9 +788,9 @@ dialog#workLogDialog,
       <button data-tab="kpi" role="tab" aria-selected="false" aria-controls="kpi">KPI Builder</button>
       <button data-tab="pm" role="tab" aria-selected="false" aria-controls="pm">PM Generator</button>
       <button data-tab="hypercare" role="tab" aria-selected="false" aria-controls="hypercare">Hypercare Communication</button>
-      <button data-tab="dr" role="tab" aria-selected="false" aria-controls="dr">DR Communication</button>
-     
+      
       <!-- Workspace menu (right-aligned, lives INSIDE the tab bar) -->
+
 <div class="wb-group">
   <button id="wbMenuBtn"
           aria-haspopup="menu"
@@ -744,6 +814,27 @@ dialog#workLogDialog,
     <li role="none">
        <button id="changecalendar" role="menuitem" class="wb-item" onclick="openPowerBiModal()">Change Calendar</button> 
     </li>
+    <li role="none">
+  <button
+    id="wbActCbaCalendar"
+    role="menuitem"
+    class="wb-item">
+    Generate CBA Calendar
+  </button>
+</li>
+<li>
+<!--<label class="btn secondary" for="excelToJsonInput" style="cursor:pointer;" onclick="document.getElementById('excelToJsonInput').click();">Excel To JSON</label>-->
+<button
+    id="wbActExcelImport"
+    role="menuitem"
+    class="wb-item"
+    onclick="document.getElementById('excelToJsonInput').click();">
+    Excel To JSON
+  </button>
+<input type="file" id="excelToJsonInput" accept=".xlsx,.xls" style="display:none;" />
+
+
+</li>
   </ul>
 </div>
 <!-- Power BI Modal -->
@@ -824,7 +915,76 @@ dialog#workLogDialog,
   </aside>
 
   <!-- MAIN WORK AREA -->
-  <div id="workspace"></div>
+  <div id="workspace">
+    <section id="cba-calendar-panel" class="panel" hidden>
+        <h2>Generate CBA Calendar</h2>
+  <!-- Controls -->
+  <div class="grid grid-2">
+    <div>
+      <label>Reference Date (Week)</label>
+      <input type="date" id="cbaRefDate">
+    </div>
+    <div>
+      <label>Upload CBA JSON</label>
+      <input type="file" id="cbaJsonFile" accept="application/json">
+    </div>
+    
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0">
+    <select id="peType">
+      <option>Local Race</option>
+      <option>Commingling</option>
+      <option>Simulcast</option>
+      <option>Mark Six</option>
+      <option>Football</option>
+    </select>
+    <select id="peDay">
+      <option value="0">Mon</option><option value="1">Tue</option>
+      <option value="2">Wed</option><option value="3">Thu</option>
+      <option value="4">Fri</option><option value="5">Sat</option>
+      <option value="6">Sun</option>
+    </select>
+    <input type="time" id="peStart">
+    <input type="time" id="peEnd">
+    <button id="addEventBtn" class="btn">Add Event</button>
+  </div>
+
+  <!-- Calendar -->
+ <!-- <div class="cba-toolbar">
+    <button id="cbaWeekBtn" class="btn">Week</button>
+    <button id="cbaDayBtn" class="btn secondary">Day</button>
+  </div> -->
+
+  <div id="cba-calendar-root"></div>
+
+<div class="grid" style="max-width:420px;margin-top:12px">
+  <label>Filter by IT Systems</label>
+  <input type="text" id="cbaSystemFilter" placeholder="e.g. BET, OMS, CMGC"/>
+  <div class="hint">Comma‑separated, matches any system</div>
+</div>
+
+<section id="cba-today-panel" style="margin-top:20px">
+  <h3>Today's CBA</h3>
+  <div id="cba-today-accordion"></div>
+</section>
+
+  <!-- Ongoing CBA -->
+ <section id="cba-ongoing-panel" style="margin-top:20px; display: none;">
+    
+    <h3>Ongoing CBA</h3>
+    <div id="cba-ongoing-list" class="hint">No ongoing CBA</div>
+  </section>
+  
+<section id="cba-upcoming-panel" style="margin-top:16px; display: none;">
+  <h3>Upcoming CBA (Next 5 Hours)</h3>
+  <div id="cba-upcoming-list" class="hint">
+    No upcoming CBA in next 5 hours.
+  </div>
+</section>
+
+</section>
+  </div>
   <div id="parking" hidden></div>
 </div>
 
@@ -834,75 +994,80 @@ dialog#workLogDialog,
   <!-- ===================== Incident Template (full app per incident) ===================== -->
   
 <!-- ===== DR Communication (singular, no sidebar needed) ===== -->
-<section id="dr" class="panel" role="tabpanel" aria-labelledby="tab-dr" hidden>
-  <section id="dr-comm" aria-label="Disaster Recovery Communication">
-    <div class="dr-card">
-      <label for="drAppFile" class="dr-label">Upload Application JSON</label>
-      <input type="file" id="drAppFile" accept=".json" />
-      <small class="dr-hint">Load the systems JSON (e.g., systems.json)</small>
-    </div>
-
-    <div class="dr-hosts" id="drHostList" aria-live="polite"></div>
-
-    <div class="dr-card">
-      <label class="dr-label">Impacted Applications</label>
-      <table id="drImpactedTable" class="dr-table dr-impact-accordion" aria-label="Impacted Applications by Category">
-        <thead><tr><th style="width:30%">Sites</th><th>Applications (multi-select)</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <div class="dr-actions" style="margin-top:.5rem">
-        <button type="button" id="drMarkRecovered" class="dr-btn">Mark selected as recovered</button>
-      </div>
-    </div>
-
-    <div class="dr-card">
-      <h4 class="dr-label">Issue Description</h4>
-      <textarea id="drIssueTextarea" rows="2" style="width:100%"></textarea>
-    </div>
-
-    <div class="dr-card">
-      <h4 class="dr-label">Actions Taken</h4>
-      <textarea id="drActionsTaken" rows="6" style="width:100%"></textarea>
-      <small class="dr-hint">Press Enter for a new time-stamped line. Use Shift+Enter to insert a plain newline.</small>
-    </div>
-
-    <div class="dr-card">
-      <span class="dr-label"><strong>Overall Recovery:</strong></span>
-      <span id="drOverallPercent" class="dr-overall-value" style="font-weight:bold">0%</span>
-      <div class="dr-progress"><div id="drOverallBar" class="dr-progress-bar" style="width:0%"></div></div>
-    </div>
-
-    <div class="dr-card">
-      <h4 class="dr-label">Recovery Status (By Criticality)</h4>
-      <table id="drImpactTable" class="dr-table"></table>
-    </div>
-
-    <div class="dr-card">
-      <h4 class="dr-label">Recovery Status (By Service)</h4>
-      <div id="drRecoverySummary">
-        <table id="drRecoveryTable" class="dr-table"></table>
-      </div>
-    </div>
-
-    <div class="dr-card">
-      <button type="button" id="drCopyToTeams" class="dr-btn dr-primary">Copy to Teams</button>
-      <small class="dr-hint">Copies the tabular preview with blue labels to your clipboard.</small>
-    </div>
-  </section>
-</section>
+<!-- DR Clean up 1-->
 <template id="incidentTemplate">
   <section class="incident" data-incident>
 
     <!-- ========== Sit-Rep (IDs preserved) ========== -->
     <section id="sitrep" class="panel" role="tabpanel" aria-labelledby="tab-sitrep">
-      <h2>Sit-Rep <div id="clearallsitrep"></div></h2>
+      <h2>Sit-Rep<div id="clearallsitrep"></div></h2>
 
       <div class="headline">
         <div class="text" id="headlineText">Heads Up - — - — - —</div>
         <div style="display:flex; gap:8px; align-items:center;">
-          <button id="copyHeadline" class="btn secondary">Copy Headline</button>
-          <button id="downloadPreviewBtn" class="btn secondary">Download Sit-Rep JSON</button>
-          <label class="btn secondary" for="importFile" style="cursor:pointer;">Upload Sit-Rep JSON</label>
+          <!--<button id="copyHeadline" class="btn secondary">Copy Headline</button>-->
+          
+<button id="copyHeadline"
+        class="btn icon-pill"
+        title="Copy headline"
+        aria-label="Copy headline">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="24" height="24" rx="6" fill="#eef3ff"/>
+    <rect x="9" y="8" width="8" height="10" rx="1.5" fill="#1850b5"/>
+    <rect x="7" y="6" width="8" height="10" rx="1.5"
+          fill="#1850b5" opacity="0.45"/>
+  </svg>
+</button>
+
+
+        <!--<button id="downloadPreviewBtn" class="btn secondary">Download Sit-Rep JSON</button>-->
+        
+<button id="downloadPreviewBtn"
+        class="btn icon-pill"
+        title="Download Sit-Rep JSON"
+        aria-label="Download Sit-Rep JSON">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="24" height="24" rx="6" fill="#fff7ed"/>
+    <path d="M12 6v8"
+          stroke="#f59e0b"
+          stroke-width="2"
+          stroke-linecap="round"/>
+    <path d="M8.5 11.5L12 15l3.5-3.5"
+          stroke="#f59e0b"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    <rect x="7" y="17" width="10" height="2" rx="1"
+          fill="#f59e0b"/>
+  </svg>
+</button>
+
+          <!--<button id="uploadSitRepJson" class="btn secondary" onclick="document.getElementById('importFile').click();">Upload Sit-Rep JSON</button>-->
+
+          
+<button id="uploadSitRepJson"
+        class="btn icon-pill"
+        title="Upload Sit-Rep JSON"
+        aria-label="Upload Sit-Rep JSON"
+        onclick="document.getElementById('importFile').click();">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="24" height="24" rx="6" fill="#ecfdf5"/>
+    <path d="M12 18V10"
+          stroke="#16a34a"
+          stroke-width="2"
+          stroke-linecap="round"/>
+    <path d="M8.5 12.5L12 9l3.5 3.5"
+          stroke="#16a34a"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    <rect x="7" y="6" width="10" height="2" rx="1"
+          fill="#16a34a"/>
+  </svg>
+</button>
+
+
+          <!--<label class="btn secondary" for="importFile" style="cursor:pointer;">Upload Sit-Rep JSON</label>-->
           <input type="file" id="importFile" accept="application/json" style="display:none;"/>
         </div>
       </div>
@@ -967,7 +1132,20 @@ dialog#workLogDialog,
       <textarea id="situation" required placeholder="Describe the situation clearly"></textarea>
 
       <div class="row">
-        <div><label for="impactAreas">Impacted Areas</label><input id="impactAreas" type="text" placeholder="Systems / business areas"/></div>
+        <div><label for="impactAreas">Impacted Areas
+            
+<button
+    id="searchImpactedCbas"
+    title="Find impacted CBAs"
+    style="
+      border:none;
+      background:none;
+      cursor:pointer;
+      font-size:14px
+    "
+  >🔍</button>
+
+        </label><input id="impactAreas" type="text" placeholder="Systems / business areas"/></div>
         <div><label for="mttr">MTTR</label><input id="mttr" type="text" placeholder="e.g., 1h 25m"/></div>
       </div>
 
@@ -996,6 +1174,20 @@ dialog#workLogDialog,
 
       <div class="actions" style="margin-top:8px;">
         <button id="copyPreview" class="btn warn">Copy Preview for Teams</button>
+
+        
+<!--<button id="copyPreview"
+        class="btn icon-pill"
+        title="Copy Preview for Teams"
+        aria-label="Copy Preview for Teams">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="24" height="24" rx="6" fill="#eef3ff"/>
+    <path d="M7 7h8a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H10l-3 3v-3H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"
+          fill="#1850b5" opacity="0.85"/>
+    <rect x="11" y="9" width="5" height="6" rx="1"
+          fill="#1850b5"/>
+  </svg>
+</button>-->
         <span class="hint">Copies the table only (excludes headline)</span>
       </div>
     </section>
@@ -1054,7 +1246,7 @@ dialog#workLogDialog,
             <option>3-in-1</option>
             <option>Support</option>
           </select>
-          <button class="btn btnAdd" id="hc_add_preset">+ Add</button>
+          <button class="btn btnAdd" id="hc_add_preset">+ Add Preset</button>
           <button class="btn secondary btnAddCustom" id="hc_add_blank">+ Add Custom</button>
         </div>
 
@@ -1149,7 +1341,7 @@ dialog#workLogDialog,
         <tbody id="wsBody"></tbody>
       </table>
       <div class="ws-actions">
-        <button id="wsAdd" class="btn btnAdd">+ Add New Workstream</button>
+        <button id="wsAdd" class="btn btnAdd">+ Add Row</button>
         <button id="wsCopyTeams" class="btn secondary" title="Copy the workstreams table (without timers) to clipboard">Copy For Teams</button>
 </div>
     </section>
@@ -1679,11 +1871,7 @@ function collectWorkspace(){
     incidents.push(collectIncident(inc));
   });
   // DR (global)
-  const dr = {
-    issue: document.getElementById('drIssueTextarea')?.value ?? '',
-    actions: document.getElementById('drActionsTaken')?.value ?? '',
-    overallPct: document.getElementById('drOverallPercent')?.textContent ?? '0%'
-  };
+  
   // Reminder (persist as-is if present)
   const reminder = (() => {
     try { return JSON.parse(localStorage.getItem('wbReminderConfig') || '{}'); }
@@ -1692,7 +1880,7 @@ function collectWorkspace(){
   return {
     version: '4.0-backup-2',
     savedAt: new Date().toISOString(),
-    layout, incidents, dr,
+    layout, incidents, 
     reminder: {
       enabled: !!reminder.enabled,
       intervalMin: Number(reminder.intervalMin || 60),
@@ -1765,12 +1953,7 @@ for (const inc of list) {
   }
 
   // 4) DR
-  if (obj.dr){
-    const set = (id,v)=>{ const el=document.getElementById(id); if(el && v!=null) el.value=String(v); };
-    set('drIssueTextarea', obj.dr.issue);
-    set('drActionsTaken', obj.dr.actions);
-    // overallPct is derived by UI; leave progress bar to normal flow
-  }
+ 
 
   // 5) Reminder
   if (obj.reminder){
@@ -1988,7 +2171,7 @@ function closeIncident(id){
   // Proceed with the original closing logic
   closeIncidentUnsafe(id);
 }
-  function closeIncidentUnsafe(id){
+  /**function closeIncidentUnsafe(id){
     const node = nodes.get(id); const pill = bar.querySelector(`.inc-pill[data-incident-id="${id}"]`);
     if(node?.parentNode) node.parentNode.removeChild(node);
     if(pill?.parentNode) pill.parentNode.removeChild(pill);
@@ -1996,7 +2179,40 @@ function closeIncident(id){
     nodes.delete(id); const i=order.indexOf(id); if(i>=0) order.splice(i,1);
     if(activeId===id){ activeId=null; const next=order[order.length-1]; if(next) activate(next); else workspace.innerHTML=''; }
     refreshPills();
+  }**/
+
+  function closeIncidentUnsafe(id){
+  const node = nodes.get(id);
+  const pill = bar.querySelector(`.inc-pill[data-incident-id="${id}"]`);
+
+  // Remove incident DOM
+  if (node?.parentNode) node.parentNode.removeChild(node);
+  if (pill?.parentNode) pill.parentNode.removeChild(pill);
+
+  // Clear breach indicator if present
+  if (window.PillBreach) window.PillBreach.clear(id);
+
+  // Remove from internal state
+  nodes.delete(id);
+  const i = order.indexOf(id);
+  if (i >= 0) order.splice(i, 1);
+
+  // Handle active incident removal
+  if (activeId === id) {
+    activeId = null;
+    const next = order[order.length - 1];
+    if (next) activate(next);
+    else workspace.innerHTML = '';
   }
+
+  // ✅ FIX: Reset workspace action active state
+  document
+    .querySelectorAll('.workspace-action.active')
+    .forEach(el => el.classList.remove('active'));
+
+  // Refresh sidebar pills
+  refreshPills();
+}
 
   addBtn.addEventListener('click', ()=>{
     const n = order.length+1; createIncident(`Incident ${n}`);
@@ -2005,19 +2221,67 @@ function closeIncident(id){
   // ---------- Feature tabs (shared) ----------
   const featureTabs = $('#featureTabs');
   function currentFeatureKey(){ const btn = $('#featureTabs [aria-selected="true"]'); return btn ? btn.dataset.tab : 'sitrep'; }
+  
   function showFeature(key, incRoot){
-    const root = incRoot || nodes.get(activeId); if(!root) return;
-    $$('[role="tabpanel"]', root).forEach(sec => sec.hidden = (sec.id !== key));
-    if(key==='kpi') buildKpiTablesFromWorklog(root);
- if(key==='ws') ensureWsDefaults(root);
-    if(key==='pm')  buildAppendixAFromWorklog(root);
+  // ✅ FORCE EXIT CBA MODE FIRST
+  if (typeof window.exitCbaMode === 'function') {
+    window.exitCbaMode();
   }
-  featureTabs.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button[data-tab]'); if(!btn) return;
-    $$('#featureTabs button').forEach(b => b.setAttribute('aria-selected', String(b===btn)));
-    showFeature(btn.dataset.tab);
-  });
 
+  const root = incRoot || nodes.get(activeId);
+  if (!root) return;
+
+  $$('[role="tabpanel"]', root)
+    .forEach(sec => sec.hidden = (sec.id !== key));
+
+  if(key==='kpi') buildKpiTablesFromWorklog(root);
+  if(key==='ws') ensureWsDefaults(root);
+  if(key==='pm') buildAppendixAFromWorklog(root);
+}
+  featureTabs.addEventListener('click', (e)=>{
+    exitCbaMode();
+  
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#wbActCbaCalendar');
+  
+clearMainMenuSelection();               // ✅ Sit‑Rep etc. unselected
+setWorkspaceActive("wbActCbaCalendar");
+
+  if (!btn) return;
+
+  e.preventDefault();
+
+  if (typeof window.enterCbaMode === 'function') {
+    window.enterCbaMode();
+  } else {
+    console.error('enterCbaMode not available');
+  }
+});
+  
+const btn = e.target.closest('button[data-tab]');
+  if (!btn) return;
+
+  $('#featureTabs [aria-selected="true"]')
+    ?.setAttribute('aria-selected', 'false');
+
+  btn.setAttribute('aria-selected', 'true');
+  showFeature(btn.dataset.tab);
+});
+
+
+  function exitCbaModeIfActive() {
+  const panel = document.getElementById('cba-calendar-panel');
+  if (!panel || panel.hidden) return;
+
+  panel.hidden = true;
+  document.getElementById('layout')?.classList.remove('cba-fullscreen');
+
+  // Restore normal panels
+  document.querySelectorAll('#workspace .panel')
+    .forEach(p => p.hidden = false);
+
+  stopOngoingTimer();
+}
 function retagQuestionnaireRadios(root) {
   if (!root) return;
   const incidentId = root.dataset.incidentId || 'INC';
@@ -3527,7 +3791,7 @@ function addWsRow(root){
   });
   tbObserver.observe(tb, { childList: true });
 }
-
+window.addWsRow = addWsRow;
 function ensureWsDefaults(root){
   const tb = root.querySelector('#wsBody');
   if (!tb) return;
@@ -4479,31 +4743,7 @@ th { background-color: #f2f2f2; }
 </style>
 
 
-<style>
-/* ===== DR Communication (scoped to #dr-comm) ===== */
-#dr-comm .dr-hosts { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 0.5rem; color:#013467 }
-#dr-comm .dr-host { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; }
-#dr-comm .dr-host header{ display:grid; grid-template-columns:auto 1fr; gap:.5rem; align-items:center; padding:.5rem .75rem; border-bottom:1px solid var(--border); background:#f9fafb }
-#dr-comm .dr-accordion-toggle{ cursor:pointer; padding:.45rem .7rem; border:1px solid var(--border); border-radius:8px; background:#fff; color:#111827; display:inline-flex; align-items:center; gap:.45rem; font-size:.92rem; }
-#dr-comm .dr-accordion-icon{ width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:7px solid #374151; transition:transform .15s ease }
-#dr-comm .dr-host.expanded .dr-accordion-icon{ transform: rotate(180deg); }
-#dr-comm .dr-panel{ display:none }
-#dr-comm .dr-host.expanded .dr-panel{ display:block }
-#dr-comm .dr-card{ border:1px solid var(--border); border-radius:12px; background:#fff; padding:12px; width:100%; margin-bottom:12px }
-#dr-comm .dr-label{ color: var(--blue-700); font-weight:700; margin:0 0 6px 0 }
-#dr-comm .dr-progress{ width:100%; height:10px; background:#f3f4f6; border-radius:999px; overflow:hidden; border:1px solid #e5e7eb }
-#dr-comm .dr-progress-bar{ height:100%; background:#16a34a; transition: width .15s ease }
-#dr-comm .dr-table{ width:100%; border-collapse:collapse }
-#dr-comm .dr-table th, #dr-comm .dr-table td{ border:1px solid var(--border); padding:6px; vertical-align:top }
-#dr-comm .dr-table thead th{ background:#eaf1ff; color:#0b2a63; text-align:left }
-/* Yellow pill buttons (scoped) */
-#dr-comm button, #dr-comm .dr-btn{ background: var(--yellow-500); color:#111827; border:none; border-radius:10px; padding:.55rem .95rem; font-weight:600; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.15); }
-#dr-comm button:hover{ filter:brightness(0.98) }
-#dr-comm .dr-impact-search{ width:100%; border:1px solid var(--border); border-radius:8px; padding:.4rem .6rem; margin-bottom:.5rem; }
-#dr-comm .dr-impact-select{ width:100%; min-height:8rem }
-#dr-comm .impact-row.collapsed .dr-impact-search,
-#dr-comm .impact-row.collapsed .dr-impact-select{ display:none }
-</style>
+
 
 <style>/* Hypercare table tidy */
 .hc-table tbody tr:nth-child(even){background:#fbfdff;}
@@ -4764,303 +5004,6 @@ th { background-color: #f2f2f2; }
 }
 
 // ===== DR Communication init (singular screen) =====
-(function(){
-  function initDRComm(rootSelector){
-    const root = document.querySelector(rootSelector);
-    const el = {
-      file: root.querySelector('#drAppFile'),
-      hostList: root.querySelector('#drHostList'),
-      impactedTbody: root.querySelector('#drImpactedTable tbody'),
-      markRecovered: root.querySelector('#drMarkRecovered'),
-      issue: root.querySelector('#drIssueTextarea'),
-      actions: root.querySelector('#drActionsTaken'),
-      overallBar: root.querySelector('#drOverallBar'),
-      overallPct: root.querySelector('#drOverallPercent'),
-      byCritTbl: root.querySelector('#drImpactTable'),
-      bySvcTbl: root.querySelector('#drRecoveryTable'),
-      copyTeams: root.querySelector('#drCopyToTeams'),
-    };
-    const state = { apps:[], impacted:new Set(), recovered:new Set(), baseline:null, cats:new Map(), svcs:new Map(), crits:new Map() };
-    const CRIT_ORDER = ['Lifeblood','Critical','Important','Moderate','Peripheral'];
-    const esc = s=>String(s??'').replace(/[&<>]/g,c=>({'&':'&','<':'<','>':'>'}[c]));
-    // Normalize Criticality like "1 - Lifeblood" -> "Lifeblood"
-function normalizeCrit(s){
-  const t = String(s || '');
-  const m = t.match(/^\s*\d+\s*-\s*(.+)$/);
-  return (m ? m[1] : t).trim();
-}
-
-// Canonicalize site names (e.g., "ITOB-A" -> "ITOB A")
-function canonicalSite(s){
-  return String(s || '')
-    .replace(/[\u2013\u2014]/g, '-')      // en/em-dash -> hyphen
-    .replace(/\bITOB[-\s]?A\b/gi, 'ITOB A')
-    .replace(/\bITOB[-\s]?B\b/gi, 'ITOB B')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-// Split "HostCategory" like "Singapore + ITOB-A + ITOB-B" into tokens
-function splitSites(cat){
-  return String(cat||'')
-    .replace(/[–—]/g,'-')
-    .split(/[+,/;]+/g)
-    .map(function(t){ return canonicalSite(t); })
-    .filter(Boolean);
-}
-
-// Group each app into ALL of its sites
-function groupBySites(apps){
-  const m = new Map();
-  for (const a of apps){
-    const sites = (a.sites && a.sites.length) ? a.sites : ['Unspecified'];
-    for (const site of sites){
-      if (!m.has(site)) m.set(site, []);
-      m.get(site).push(a);
-    }
-  }
-  return m;
-}
-function normalizeCrit(s){
-  // Accept forms like "1 - Lifeblood", "2 - Critical", "Lifeblood"
-  const t = String(s || '');
-  const m = t.match(/^\s*\d+\s*-\s*(.+)$/);
-  return (m ? m[1] : t).trim();
-}
-
-    function norm(a){
-      const name=a.ApplicationName||a.name||'';
-      const code=a.SystemCode||a.code||name;
-      const service=a.Service||a.service||'Unspecified';
-      //const criticality=a.Criticality||a.criticality||'Unspecified';
-      //const criticality = normalizeCrit(a.Criticality || a.criticality || 'Unspecified');
-      //const category=a.HostCategory||a.category||'Uncategorized';
-      //return {name,code,service,criticality,category};
-      
-      const criticality = normalizeCrit(a.Criticality || a.criticality || 'Unspecified');
-      const category = a.HostCategory || a.category || 'Uncategorized';
-      const sites = splitSites(category);  // <-- new
-      return {name,code,service,criticality,category,sites};
-
-    }
-    function groupBy(arr,k){ const m=new Map(); for(const x of arr){ const key=x[k]||'Unknown'; if(!m.has(key)) m.set(key,[]); m.get(key).push(x);} return m; }
-    function setApps(apps){
-      state.apps=(apps||[]).map(norm);
-      //state.cats=groupBy(state.apps,'category');
-      state.sites = groupBySites(state.apps);
-      state.svcs=groupBy(state.apps,'service');
-      state.crits=groupBy(state.apps,'criticality');
-      renderHosts(); renderImpacted(); renderSummaries();
-    }
-    function renderHosts(){
-      const hostList = el.hostList; if(!hostList) return; hostList.innerHTML='';
-      for(const [site,list] of state.sites.entries()){
-        const card=document.createElement('div'); card.className='dr-host';
-        card.innerHTML = `
-          <header>
-            <button type="button" class="dr-accordion-toggle" aria-expanded="false">
-              <span class="dr-accordion-icon"></span><strong class="dr-host-name">${esc(site)}</strong>
-            </button>
-            <span class="dr-host-impact">${list.length} app(s)</span>
-          </header>
-          <div class="dr-panel" hidden>
-            <table><thead><tr><th>Application</th><th>Service</th><th>Criticality</th></tr></thead>
-            <tbody>${list.map(a=>`<tr><td>${esc(a.name)}</td><td>${esc(a.service)}</td><td>${esc(a.criticality)}</td></tr>`).join('')}</tbody></table>
-          </div>`;
-        const toggle=card.querySelector('.dr-accordion-toggle'); const panel=card.querySelector('.dr-panel');
-        toggle.addEventListener('click',()=>{ const ex=toggle.getAttribute('aria-expanded')==='true'; toggle.setAttribute('aria-expanded', String(!ex)); panel.hidden=ex; card.classList.toggle('expanded',!ex); });
-        hostList.appendChild(card);
-      }
-    }
-    function hash(s){ let h=0; s=String(s||''); for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return Math.abs(h).toString(36); }
-    function renderImpacted(){
-  const tbody = el.impactedTbody;
-  if (!tbody) return;
-
-  // Clear existing rows
-  tbody.innerHTML = '';
-
-  // Iterate the prebuilt "sites" map (site -> array of apps at that site)
-  // NOTE: state.sites is produced in setApps() via: state.sites = groupBySites(state.apps);
-  for (const [site, list] of state.sites.entries()) {
-    if (!Array.isArray(list) || list.length === 0) continue;
-
-    // Row shell
-    const tr = document.createElement('tr');
-    tr.className = 'impact-row';
-    tr.dataset.site = site;
-    tr.setAttribute('aria-expanded', 'true');
-
-    // ---------- LEFT CELL: toggle + running summary ----------
-    const tdL = document.createElement('td');
-    tdL.style.verticalAlign = 'top';
-
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'dr-row-toggle';
-
-    const icon = document.createElement('span');
-    icon.className = 'dr-accordion-icon';
-
-    toggle.append(icon, document.createTextNode(site));
-
-    const summary = document.createElement('div');
-    summary.className = 'dr-impact-summary';
-
-    tdL.append(toggle, summary);
-
-    // ---------- RIGHT CELL: search + multi-select + actions ----------
-    const tdR = document.createElement('td');
-    const id = 'site-' + hash(site);
-    tdR.id = id;
-
-    // Search box
-    const search = document.createElement('input');
-    search.className = 'dr-impact-search';
-    search.placeholder = 'Search ' + site + '…';
-
-    // Multi-select
-    const select = document.createElement('select');
-    select.className = 'dr-impact-select';
-    select.multiple = true;
-
-    // Only show apps that are NOT already recovered
-    const unrecovered = list.filter(a => !state.recovered.has(a.code));
-
-    // Fill options; keep them selected if already marked impacted
-    for (const a of unrecovered) {
-      const opt = document.createElement('option');
-      opt.value = a.code;
-      opt.textContent = a.name + ' (' + a.code + ')';
-      opt.selected = state.impacted.has(a.code);
-      select.appendChild(opt);
-    }
-
-    // Buttons row
-    const actions = document.createElement('div');
-    actions.style.marginTop = '.5rem';
-    actions.style.display = 'flex';
-    actions.style.gap = '.5rem';
-    actions.style.alignItems = 'center';
-
-    const btnImpact = document.createElement('button');
-    btnImpact.type = 'button';
-    btnImpact.className = 'dr-btn'; // uses your yellow pill style in #dr-comm
-    btnImpact.textContent = 'Mark as Impacted';
-
-    const btnClearSel = document.createElement('button');
-    btnClearSel.type = 'button';
-    btnClearSel.className = 'dr-btn';
-    btnClearSel.textContent = 'Clear selection';
-
-    actions.append(btnImpact, btnClearSel);
-
-    // Helper to update the small "X/Y selected" indicator
-    const updateSummary = () => {
-      const selCount = [...select.options].filter(o => o.selected).length;
-      summary.textContent = selCount + '/' + select.options.length + ' selected';
-    };
-    updateSummary();
-
-    // Toggle open/close the row UI
-    toggle.setAttribute('aria-controls', id);
-    toggle.addEventListener('click', () => {
-      const expanded = tr.getAttribute('aria-expanded') === 'true';
-      tr.setAttribute('aria-expanded', String(!expanded));
-      tr.classList.toggle('collapsed', expanded);
-    });
-
-    // Client-side search within this site's select box
-    search.addEventListener('input', () => {
-      const f = search.value.trim().toLowerCase();
-      for (const o of select.options) {
-        const txt = o.textContent.toLowerCase();
-        o.hidden = !!f && !txt.includes(f);
-      }
-    });
-
-    // (Optional) live reflect selection in the summary
-    select.addEventListener('change', updateSummary);
-
-    // ---- NEW: Explicit "Mark as Impacted" action ----
-    btnImpact.addEventListener('click', () => {
-      let changed = false;
-      for (const o of select.selectedOptions) {
-        if (!state.impacted.has(o.value)) {
-          state.impacted.add(o.value);
-          changed = true;
-        }
-      }
-      if (!state.baseline && state.impacted.size) {
-        // First time we have impacted -> establish the baseline used by % computations
-        state.baseline = new Set([...state.impacted]);
-      }
-      if (changed) {
-        // Re-render to keep per-site lists clean & recompute summary tables
-        renderSummaries();   // Overall %, By Crit, By Service
-        renderImpacted();    // refresh rows (so newly impacted appear selected / counts correct)
-      } else {
-        updateSummary();
-      }
-    });
-
-    // Clear current selection in this row only (does not modify impacted set)
-    btnClearSel.addEventListener('click', () => {
-      for (const o of select.options) o.selected = false;
-      updateSummary();
-    });
-
-    // Compose row
-    tdR.append(search, select, actions);
-    tr.append(tdL, tdR);
-    tbody.appendChild(tr);
-  }
-}
-    
-    
-    function overallPct(){ const base=state.baseline? state.baseline.size:0; if(!base) return 0; let rec=0; for(const c of state.baseline){ if(state.recovered.has(c)) rec++; } return Math.round((rec/base)*100); }
-    function renderOverall(){ const p=overallPct(); if(el.overallBar) el.overallBar.style.width=p+'%'; if(el.overallPct) el.overallPct.textContent=p+'%'; }
-    function renderBy(map, tbl, order=null){ if(!tbl) return; const rows=[]; const keys = order? order.filter(k=>map.has(k)).concat([...map.keys()].filter(k=>!order.includes(k))) : [...map.keys()]; rows.push('<thead><tr><th>Group</th><th>Recovered</th><th>Total</th><th>%</th></tr></thead><tbody>');
-      const impactedRef = state.baseline ?? state.impacted;
-      for(const k of keys){ const list=map.get(k)||[]; const impacted=list.filter(a=>impactedRef.has(a.code)); const total=impacted.length; const rec=impacted.filter(a=>state.recovered.has(a.code)).length; const pct= total? Math.round((rec/total)*100):0; rows.push(`<tr><td>${esc(k)}</td><td>${rec}</td><td>${total}</td><td>${pct}%</td></tr>`);} rows.push('</tbody>'); tbl.innerHTML=rows.join(''); }
-    function renderSummaries(){ renderOverall(); renderBy(state.crits, el.byCritTbl, ['Lifeblood','Critical','Important','Moderate','Peripheral']); renderBy(state.svcs, el.bySvcTbl, null);}
-    function copyToTeams(){ const html=buildTeamsHtml(); const text=(new DOMParser().parseFromString(html,'text/html')).body.innerText.trim(); if(navigator.clipboard && 'ClipboardItem' in window){ const item=new ClipboardItem({'text/html': new Blob([html],{type:'text/html'}), 'text/plain': new Blob([text],{type:'text/plain'})}); navigator.clipboard.write([item]).catch(()=>fallback(text)); } else { fallback(text);} }
-    function fallback(t){ const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
-    function buildTeamsHtml(){ const BORDER='#dbe3f0', BLUE='#134094', YELLOW='#ffdd00', DARK='#0f172a'; const issue=esc(el.issue?.value||''); const actions=(el.actions?.value||'').split('\n').map(esc).join('<br>'); const overall=el.overallPct?.textContent||'0%'; const critTbl=el.byCritTbl?.outerHTML||''; const svcTbl=el.bySvcTbl?.outerHTML||''; const row=(label, content)=>`<tr><td bgcolor="${YELLOW}" style="background:${YELLOW};border:1px solid ${BORDER};width:260px;vertical-align:top;padding:0;"><div style="background:${YELLOW};padding:6px 8px;"><span style="color:${BLUE};font-weight:800;">${label}</span></div></td><td bgcolor="${YELLOW}" style="background:${YELLOW};border:1px solid ${BORDER};vertical-align:top;padding:0;"><div style="background:${YELLOW};padding:6px 8px;color:${DARK};">${content}</div></td></tr>`; return `<table style="width:100%;border-collapse:collapse;">${row('Issue Description', issue||'—')}${row('Actions Taken', actions||'—')}${row('Overall Recovery', overall)}${row('By Criticality', critTbl)}${row('By Service', svcTbl)}</table>`;}
-    // Events
-    //el.file?.addEventListener('change', async (e)=>{ const f=e.target.files?.[0]; if(!f) return; try{ const j=JSON.parse(await f.text()); const flat = j.apps || (j.hosts||[]).flatMap(h=>h.applications||[]); setApps(flat||[]);}catch{ alert('Invalid JSON file'); } finally { e.target.value=''; } });
-    el.file?.addEventListener('change', async (e)=>{ 
-  const f = e.target.files?.[0]; if(!f) return; 
-  try { 
-    const j = JSON.parse(await f.text());
-    const flat = Array.isArray(j)
-      ? j                                 // <-- your file's shape
-      : (j.apps || (j.hosts || []).flatMap(h => h.applications || []));
-    setApps(flat || []);
-  } catch { 
-    alert('Invalid JSON file'); 
-  } finally { e.target.value = ''; } 
-});
-    
-    el.markRecovered?.addEventListener('click', ()=>{ const selects=root.querySelectorAll('.dr-impact-select'); let changed=false; selects.forEach(sel=>{ [...sel.selectedOptions].forEach(opt=>{ if(!state.recovered.has(opt.value)){ state.recovered.add(opt.value); changed=true; } }); }); if(changed){ renderImpacted(); renderSummaries(); } });
-    el.copyTeams?.addEventListener('click', copyToTeams);
-    return { setData: (apps)=>setApps(apps||[]), getState: ()=>({ total: state.apps.length, impacted:[...state.impacted], recovered:[...state.recovered] }) };
-  }
-  // Mount and hook into the global feature tabs to toggle layout vs DR
-  document.addEventListener('DOMContentLoaded', function(){
-    const api = initDRComm('#dr-comm');
-    const tabs = document.getElementById('featureTabs');
-    const layout = document.getElementById('layout');
-    const drPanel = document.getElementById('dr');
-    if(tabs){
-      tabs.addEventListener('click', function(e){
-        const btn = e.target.closest('button[data-tab]'); if(!btn) return;
-        if(btn.dataset.tab === 'dr'){ if(layout) layout.style.display='none'; if(drPanel) drPanel.hidden=false; }
-        else { if(layout) layout.style.display=''; if(drPanel) drPanel.hidden=true; }
-      });
-    }
-  });
-})();
 
   
  function populatePMFromJson(root, data){
@@ -5631,59 +5574,76 @@ if (window._pillBacklog && window.tagInputs) {
     s = String(s==null?'':s);
     return s.replace(new RegExp('\r?\n','g'), '<br>');
   }
+  
+  
   function wsHtml(root){
-    var SITREP_BLUE = '#134094';
-    var th = 'text-align:left;border:1px solid #ccc;padding:6px;background:#eef3ff;font-weight:700;color:'+SITREP_BLUE+';';
-    var td = 'text-align:left;border:1px solid #ccc;padding:6px;vertical-align:top;';
-    var rows = [];
-    var tb = (root && root.querySelector) ? root.querySelector("#wsBody") : null;
-    if (tb){
-      Array.prototype.forEach.call(tb.querySelectorAll("tr"), function(tr, i){
-        var dEl = tr.querySelector("td:nth-child(2) textarea");
-        var oEl = tr.querySelector("td:nth-child(3) input");
-        var sEl = tr.querySelector("td:nth-child(4) select");
-        var eEl = tr.querySelector("td:nth-child(5) .ws-eta-select");
-        var rEl = tr.querySelector("td:nth-child(6) textarea");
-        var d = (dEl? dEl.value : "").trim();
-        var o = (oEl? oEl.value : "").trim();
-        var sv = (sEl? sEl.value : "");
-        var e = (eEl? eEl.value : "");
-        var r = (rEl? rEl.value : "").trim();
-        if (!(d||o||sv||e||r)) return;
-        rows.push({
-          idx: String(i+1),
-          desc: nl2br(esc(d)),
-          owner: esc(o),
-          status: esc(sv),
-          eta: esc(e && e !== '— ETA —' ? e : '—'),
-          result: nl2br(esc(r))
-        });
+  var SITREP_BLUE = '#134094';
+  var th = 'text-align:left;border:1px solid #ccc;padding:6px;background:#eef3ff;font-weight:700;color:'+SITREP_BLUE+';';
+  var td = 'text-align:left;border:1px solid #ccc;padding:6px;vertical-align:top;';
+  var rows = [];
+  var tb = root?.querySelector("#wsBody");
+
+  if (tb){
+    Array.prototype.forEach.call(tb.querySelectorAll("tr"), function(tr, i){
+      var dEl = tr.querySelector("td:nth-child(2) textarea");
+      var oEl = tr.querySelector("td:nth-child(3) input");
+      var sEl = tr.querySelector("td:nth-child(4) select");
+      var eEl = tr.querySelector("td:nth-child(5) .ws-eta-timer");
+      var rEl = tr.querySelector("td:nth-child(6) textarea");
+
+      var d = dEl?.value.trim() || "";
+      var o = oEl?.value.trim() || "";
+      var s = sEl?.value || "";
+      var e = eEl?.textContent || "";
+      var r = rEl?.value.trim() || "";
+
+      if (!(d||o||s||e||r)) return;
+
+      rows.push({
+        idx: String(i+1),
+        desc: nl2br(esc(d)),
+        owner: esc(o),
+        status: esc(s),
+        eta: esc(e || '—'),
+        result: nl2br(esc(r))
       });
-    }
-    if (!rows.length) return '<div>No data</div>';
-    var head = "\n<tr>"
-      + "<td style=\""+th+"width:38px;\">#</td>"
-      + "<td style=\""+th+"\">Task Description</td>"
-      + "<td style=\""+th+"width:180px;\">Task Owner</td>"
-      + "<td style=\""+th+"width:130px;\">Status</td>"
-      + "<td style=\""+th+"width:130px;\">ETA</td>"
-      + "<td style=\""+th+"\">Result</td>"
-      + "</tr>";
-    var body = rows.map(function(r){
-      return "\n<tr>"
-        + "<td style=\""+td+"\">"+r.idx+"</td>"
-        + "<td style=\""+td+"\">"+(r.desc||"—")+"</td>"
-        + "<td style=\""+td+"\">"+(r.owner||"—")+"</td>"
-        + "<td style=\""+td+"\">"+(r.status||"—")+"</td>"
-        + "<td style=\""+td+"\">"+(r.eta||"—")+"</td>"
-        + "<td style=\""+td+"\">"+(r.result||"—")+"</td>"
-      + "</tr>";
-    }).join("");
-    return '<div style="font-family:Calibri,Segoe UI,Arial,sans-serif;font-size:14px;color:#0f172a;">\n'
-      + '<div style="font-weight:700;font-size:16px;margin:0 0 6px 0;color:'+SITREP_BLUE+';">Workstreams</div>\n'
-      + '<table style="width:100%;border-collapse:collapse;margin:6px 0 4px 0;">'+head+body+'</table>\n'
-      + '</div>';
+    });
   }
+
+  if (!rows.length) return '<div>No data</div>';
+
+  var head =
+    '<tr>' +
+      '<td style="'+th+'width:38px;">#</td>' +
+      '<td style="'+th+'">Task Description</td>' +
+      '<td style="'+th+'width:180px;">Task Owner</td>' +
+      '<td style="'+th+'width:130px;">Status</td>' +
+      '<td style="'+th+'width:130px;">ETA</td>' +
+      '<td style="'+th+'">Result</td>' +
+    '</tr>';
+
+  var body = rows.map(function(r){
+    return '<tr>' +
+      '<td style="'+td+'">'+r.idx+'</td>' +
+      '<td style="'+td+'">'+(r.desc||'—')+'</td>' +
+      '<td style="'+td+'">'+(r.owner||'—')+'</td>' +
+      '<td style="'+td+'">'+(r.status||'—')+'</td>' +
+      '<td style="'+td+'">'+(r.eta||'—')+'</td>' +
+      '<td style="'+td+'">'+(r.result||'—')+'</td>' +
+    '</tr>';
+  }).join('');
+
+  return (
+    '<div style="font-family:Calibri,Segoe UI,Arial,sans-serif;font-size:14px;color:#0f172a;">' +
+      '<div style="font-weight:700;font-size:16px;margin-bottom:6px;color:'+SITREP_BLUE+';">Workstreams</div>' +
+      '<table style="width:100%;border-collapse:collapse;">' +
+        head + body +
+      '</table>' +
+    '</div>'
+  );
+}
+  
+  
   function wsText(root){
     var tb = (root && root.querySelector) ? root.querySelector("#wsBody") : null;
     var out = [];
@@ -5692,12 +5652,12 @@ if (window._pillBacklog && window.tagInputs) {
         var dEl = tr.querySelector("td:nth-child(2) textarea");
         var oEl = tr.querySelector("td:nth-child(3) input");
         var sEl = tr.querySelector("td:nth-child(4) select");
-        var eEl = tr.querySelector("td:nth-child(5) .ws-eta-select");
+        var eEl = tr.querySelector("td:nth-child(5) .ws-eta-timer");
         var rEl = tr.querySelector("td:nth-child(6) textarea");
         var d = (dEl? dEl.value : "").trim();
         var o = (oEl? oEl.value : "").trim();
         var sv = (sEl? sEl.value : "");
-        var e = (eEl? eEl.value : "");
+        var e = (eEl ? eEl.textContent : "");
         var r = (rEl? rEl.value : "").trim();
         if (!(d||o||sv||e||r)) return;
         d = String(d).replace(new RegExp('\r?\n','g'), ' / ');
@@ -5709,24 +5669,47 @@ if (window._pillBacklog && window.tagInputs) {
     var header=['#','Task Description','Task Owner','Status','ETA','Result'];
     return [header.join('\t')].concat(out.map(function(r){return r.join('\t');})).join('\n');
   }
-  function wsCopy(root){
-    var h = wsHtml(root), t = wsText(root);
-    try {
-      if (typeof copyRich === "function") { copyRich(h,t); return; }
-      if (navigator.clipboard && "ClipboardItem" in window){
-        var item = new ClipboardItem({'text/html': new Blob([h],{type:'text/html'}), 'text/plain': new Blob([t],{type:'text/plain'})});
-        navigator.clipboard.write([item]).then(function(){
-           // alert("Copied to clipboard");
-        }, function(){
-        //alert("Copy failed 1");
-        });
-      } else if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(t).then(function(){
-            //alert("Copied to clipboard");
-        }, function(){alert("Copy failed 4");});
-      } else { alert("Copy failed 2"); }
-    } catch(e){ alert("Copy failed 3"); }
+  
+  function wsCopy(root) {
+  var html = wsHtml(root);
+  var text = wsText(root);
+
+  try {
+    // 1️⃣ Create offscreen container
+    var container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.left = "-9999px";
+    container.style.top = "0";
+    container.style.userSelect = "text";
+    container.innerHTML = html;
+
+    document.body.appendChild(container);
+
+    // 2️⃣ Select its contents
+    var range = document.createRange();
+    range.selectNodeContents(container);
+
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    // 3️⃣ Copy using legacy execCommand (Teams-compatible)
+    document.execCommand("copy");
+
+    // 4️⃣ Cleanup
+    sel.removeAllRanges();
+    document.body.removeChild(container);
+
+  } catch (e) {
+    // Fallback – plain text only
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+    } else {
+      alert("Copy failed");
+    }
   }
+}
+  
   document.addEventListener("click", function(ev){
     var target = ev.target || ev.srcElement;
     if (!target) return;
@@ -5857,6 +5840,29 @@ if (window._pillBacklog && window.tagInputs) {
   }
 })();
 </script>
+
+<!--Modal for CBA Linker-->
+<div id="cbaImpactModal" style="
+  display:none;
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.4);
+  z-index:9999;
+">
+  <div class="modal modal-soe">
+    <div class="modal-soe-header">Potential Impacted Critical Business Activities (CBAs)</div>
+    <div class="modal-soe-body">
+        <div id="cbaImpactList" class="modal-soe-content"></div>
+    </div>
+        <div class="modal-soe-footer">
+            <button id="cbaSelectAllBtn" class="btn secondary">Select All</button>
+            <button id="cbaTrackWsBtn" class="btn">Validate As Workstream</button>
+            <button onclick="linkSelectedCbas()" class="btn">Link to Situation</button>
+            <button onclick="closeCbaImpactModal()" class="btn secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
 </body>
 
 <!-- ==== M365 Copilot Patch: Sidebar search + DR/Hypercare layout + Hypercare "Link Ongoing Incident" ==== -->
@@ -6559,11 +6565,7 @@ try {
       activeIncidentId: (document.querySelector('#workspace .incident[data-incident-id]')?.dataset.incidentId) ?? ''
     };
     // DR (basic fields visible in UI; can be extended to a full state export)  [1](https://hkjcazure-my.sharepoint.com/personal/abhishek_sengupta_hkjc_org_hk/Documents/Microsoft%20Copilot%20Chat%20Files/Incident-WorkspaceV4.0.html)
-    const dr = {
-      issue: $('#drIssueTextarea')?.value ?? '',
-      actions: $('#drActionsTaken')?.value ?? '',
-      overallPct: $('#drOverallPercent')?.textContent ?? '0%'
-    };
+    
     const reminder = loadReminderConfig();
     return { version:'4.0-backup-1', savedAt:new Date().toISOString(), layout, incidents, dr, reminder };
   }
@@ -6951,11 +6953,7 @@ function collectWorkspace(){
   });
 
   // DR (global panel)
-  const dr = {
-    issue: document.getElementById('drIssueTextarea')?.value ?? '',
-    actions: document.getElementById('drActionsTaken')?.value ?? '',
-    overallPct: document.getElementById('drOverallPercent')?.textContent ?? '0%'
-  };
+  
 
   // Reminder (keep shape compatible)
   const reminder = (function(){
@@ -6974,7 +6972,6 @@ function collectWorkspace(){
     savedAt: new Date().toISOString(),
     layout,
     incidents,
-    dr,
     reminder
   };
 }
@@ -7034,12 +7031,7 @@ async function applyWorkspace(obj){
   }
 
   // DR fields
-  if (obj.dr){
-    const set = (id,v)=>{ const el=document.getElementById(id); if(el && v!=null) el.value=String(v); };
-    set('drIssueTextarea', obj.dr.issue);
-    set('drActionsTaken', obj.dr.actions);
-    // overallPct is computed; leave progress bar as-is unless you store base data
-  }
+  
 
   // Reminder
   if (obj.reminder){
@@ -7080,7 +7072,7 @@ if (btnDownload) {
     if (downloading) return;     // prevent double-click firing twice
     downloading = true;
 
-    closeMenu();
+    //closeMenu();
 
     // Build the workspace payload from the current DOM (includes IRD via collectPM)
     const data = collectWorkspace();
@@ -7542,5 +7534,1483 @@ window.downloadPMasPptxExact = downloadPMasPptxExact;
     }
   };
 })();
+</script>
+
+<script>
+/* ============================================================
+   GENERATE CBA CALENDAR — PRODUCTION IMPLEMENTATION
+   Base: Incident-Workspace V4.5
+   Authoritative, single-shot version
+   ============================================================ */
+
+/* ---------------- GLOBAL STATE ---------------- */
+
+const CBA = {
+  json: null,
+  referenceMonday: null,
+  primeEvents: [],
+  expandedCbas: [],
+  timer: null
+};
+
+const PRIME_EVENTS = [
+  'Local Race',
+  'Commingling',
+  'Simulcast',
+  'Mark Six',
+  'Football'
+];
+
+/* ---------------- UTILITIES ---------------- */
+
+function toMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - day + 1);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function sameDay(a, b) {
+  return a.toDateString() === b.toDateString();
+}
+
+function minutes(ms) {
+  return Math.round(ms / 60000);
+}
+
+/* ---------------- LAYOUT CONTROL ---------------- */
+
+function exitCbaMode() {
+  const layout = document.getElementById('layout');
+  const workspace = document.getElementById('workspace');
+  const panel = document.getElementById('cba-calendar-panel');
+
+  // Only exit if CBAs are active
+  if (panel.hidden) return;
+
+  panel.hidden = true;
+  layout.classList.remove('cba-fullscreen');
+
+  // Restore normal panels
+  workspace.querySelectorAll('.panel').forEach(p => {
+    p.hidden = false;
+  });
+
+  stopOngoingTimer();
+}
+function exitCbaMode() {
+  const layout = document.getElementById('layout');
+
+  layout.classList.remove('cba-fullscreen');
+  stopOngoingTimer();
+}
+
+/* ---------------- STEP 2: CBA EXPANSION ---------------- */
+
+function expandCbas() {
+  if (!CBA.json || !CBA.referenceMonday) return [];
+
+  const rows = CBA.json.Sheet1 || [];
+  const result = [];
+
+  const weekStart = CBA.referenceMonday;
+
+  rows.forEach((row, idx) => {
+    const from = row.From;
+    const to   = row.To;
+    if (!from || !to) return;
+
+    const [fh, fm] = from.split(':').map(Number);
+    const [th, tm] = to.split(':').map(Number);
+
+    /* -------------------------------------------------
+       ✅ DETECT EVENT‑LINKED PROPERLY
+       ------------------------------------------------- */
+    const linkedEventRaw =
+      String(row['Linked Prime Business Event'] || '').trim();
+
+    const isEventLinked = linkedEventRaw.length > 0;
+
+    /* -------------------------------------------------
+       ✅ RESOLVE PRIME EVENTS
+       ------------------------------------------------- */
+    let primeEvents = ['BAU Daily Activity'];
+
+    if (isEventLinked) {
+      const parts = linkedEventRaw
+        .split('+')
+        .map(p => p.trim().toLowerCase())
+        .filter(Boolean);
+
+      primeEvents = PRIME_EVENTS.filter(pe =>
+        parts.includes(pe.toLowerCase())
+      );
+
+      // If listed but no match → skip row
+      if (primeEvents.length === 0) return;
+    }
+
+    /* -------------------------------------------------
+       ✅ RESOLVE DAY APPLICABILITY
+       ------------------------------------------------- */
+    const daysRaw = String(row.Days || '').toLowerCase();
+
+    
+const allowedDayIndexes = (() => {
+  if (!daysRaw) return [0,1,2,3,4,5,6];
+
+  const map = {
+    mon: 0, tue: 1, wed: 2,
+    thu: 3, fri: 4, sat: 5, sun: 6
+  };
+
+  const found = Object.keys(map)
+    .filter(k => daysRaw.includes(k))
+    .map(k => map[k]);
+
+  return found.length ? found : [0,1,2,3,4,5,6];
+})();
+
+    /* -------------------------------------------------
+       ✅ EXPAND INTO CONCRETE CBAs
+       ------------------------------------------------- */
+    allowedDayIndexes.forEach(d => {
+      const day = new Date(weekStart);
+      day.setDate(day.getDate() + d);
+
+      const start = new Date(day);
+      start.setHours(fh, fm, 0, 0);
+
+      const end = new Date(day);
+      end.setHours(th, tm, 0, 0);
+      if (end <= start) end.setDate(end.getDate() + 1);
+
+      primeEvents.forEach(primeEvent => {
+        result.push({
+          id: `${idx}-${d}-${primeEvent}`,
+          category: row['CBA Category'] || 'CBA',
+          description: row.CBA || '',
+          systems: String(row['IT Systems'] || '')
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean),
+          primeEvent,
+          start,
+          end
+        });
+      });
+    });
+  });
+
+  CBA.expandedCbas = result;
+  return result;
+}
+
+
+/* ---------------- STEP 3: PRIME EVENT CALENDAR ---------------- */
+
+function renderPrimeEvents() {
+  const root = document.getElementById('cba-calendar-root');
+  root.innerHTML = '';
+
+  if (!CBA.referenceMonday || CBA.primeEvents.length === 0) {
+    root.innerHTML = '<div class="hint">No Prime Business Events added</div>';
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(7,1fr)';
+  grid.style.borderTop = '1px solid #dbe3f0';
+
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(CBA.referenceMonday);
+    day.setDate(day.getDate() + i);
+
+    const cell = document.createElement('div');
+    cell.style.borderLeft = '1px solid #dbe3f0';
+    cell.style.padding = '8px';
+    cell.style.minHeight = '120px';
+
+    cell.innerHTML = `
+      <div style="font-weight:700">
+        ${day.toLocaleDateString('en-GB', { weekday: 'short' })}<br>
+        ${day.toLocaleDateString('en-GB')}
+      </div>
+    `;
+
+    CBA.primeEvents
+      .filter(pe => sameDay(pe.start, day))
+      .forEach(pe => {
+
+        const b = document.createElement('div');
+        b.style.marginTop = '6px';
+        b.style.padding = '6px 8px';
+        b.style.borderRadius = '8px';
+        b.style.color = '#fff';
+        b.style.fontWeight = '700';
+        b.style.background = PRIME_EVENT_COLORS[pe.type] || '#64748b';
+
+        b.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span>
+              ${pe.type}
+              (${pe.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              – ${pe.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+            </span>
+            <button
+              title="Delete Event"
+              style="
+                border:none;
+                background:none;
+                color:white;
+                cursor:pointer;
+                font-weight:900;
+                margin-left:8px;
+                padding:0
+              "
+            >✕</button>
+          </div>
+        `;
+
+        // 🔥 Delete handler
+        const deleteBtn = b.querySelector('button');
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deletePrimeEvent(pe.id);
+        });
+
+        cell.appendChild(b);
+      });
+
+    grid.appendChild(cell);
+  }
+
+  root.appendChild(grid);
+}
+function deletePrimeEvent(eventId) {
+  CBA.primeEvents = CBA.primeEvents.filter(pe => pe.id !== eventId);
+
+  // Re-render calendar
+  renderPrimeEvents();
+
+  // Re-resolve CBAs and update Today panel
+  const events = getPrimeBusinessEventsFromCbaUI();
+  window.applyCbaPatch(events);
+}
+/* ---------------- STEP 4: ONGOING CBA ---------------- */
+
+function renderOngoingCbas() {
+  const box = document.getElementById('cba-ongoing-list');
+  box.innerHTML = '';
+
+  //const now = new Date();
+  const now = getOperationalNow();
+const filters = getSystemFilter();
+
+
+const activePrimeEvents = getActivePrimeEvents(now);
+const hasActivePrimeEvents = activePrimeEvents.length > 0;
+
+const live = CBA.expandedCbas.filter(c => {
+  if (now < c.start || now > c.end) return false;
+
+  // BAU always visible
+  if (c.primeEvent === 'BAU Daily Activity') return true;
+
+  // No active Prime Events → hide event-linked
+  if (!hasActivePrimeEvents) return false;
+
+  // Match active Prime Events only
+  return activePrimeEvents.includes(c.primeEvent);
+});
+
+
+
+
+  if (live.length === 0) {
+    box.textContent = 'No ongoing CBA at this time.';
+    return;
+  }
+
+  const groups = {};
+  live.forEach(c => {
+    const g = c.primeEvent || 'BAU Daily Activity';
+    groups[g] ??= [];
+    groups[g].push(c);
+  });
+
+  Object.keys(groups).forEach(group => {
+    const det = document.createElement('details');
+    det.open = true;
+
+    const sum = document.createElement('summary');
+    sum.textContent = `${group} (${groups[group].length})`;
+    sum.style.fontWeight = '700';
+
+    det.appendChild(sum);
+
+    groups[group].forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'pm-card';
+      card.style.cursor = 'pointer';
+      card.innerHTML = `
+        <b>${c.category}</b><br>
+        ${c.start.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+        – ${c.end.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}<br>
+        <span class="hint">Systems: ${c.systems.join(', ')}</span>
+      `;
+      card.onclick = () =>
+        alert(
+          `${c.description}\n\nSystems:\n${c.systems.join(', ')}`
+        );
+      det.appendChild(card);
+    });
+
+    box.appendChild(det);
+  });
+}
+
+/* ---------------- AUTO REFRESH ---------------- */
+
+
+function startOngoingTimer() {
+  stopOngoingTimer();
+  renderOngoingCbas();
+  renderUpcomingCbas();
+  CBA.timer = setInterval(() => {
+    renderOngoingCbas();
+    renderUpcomingCbas();
+  }, 5 * 60 * 1000);
+}
+
+
+function stopOngoingTimer() {
+  if (CBA.timer) {
+    clearInterval(CBA.timer);
+    CBA.timer = null;
+  }
+}
+
+/* ---------------- EVENT WIRING ---------------- */
+
+
+
+
+
+document.getElementById('cbaRefDate')
+  ?.addEventListener('change', e => {
+    CBA.referenceMonday = toMonday(e.target.value);
+  });
+
+document.getElementById('cbaJsonFile')
+  ?.addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    CBA.json = JSON.parse(await f.text());
+    window._CBA_RULES = normalizeCbaRules(CBA.json);
+    expandCbas();
+    renderOngoingCbas();
+    renderUpcomingCbas();
+  });
+document.getElementById('cbaSystemFilter')
+  ?.addEventListener('input', () => {
+    renderOngoingCbas();
+    renderUpcomingCbas();
+  });
+
+  
+
+document.getElementById("cbaSystemFilter")
+  ?.addEventListener("input", () => {
+    if (window._CBA_WEEK_RESULT) {
+      renderCbaAccordion(window._CBA_WEEK_RESULT);
+    }
+  });
+
+
+document.getElementById('addEventBtn')
+  ?.addEventListener('click', () => {
+    if (!CBA.referenceMonday) {
+      alert('Select Reference Week first');
+      return;
+    }
+
+    const type = peType.value;
+    const day = Number(peDay.value);
+    const st = peStart.value;
+    const et = peEnd.value;
+
+    if (!st || !et) {
+      alert('Start and End time required');
+      return;
+    }
+
+    const start = new Date(CBA.referenceMonday);
+    start.setDate(start.getDate() + day);
+    start.setHours(...st.split(':').map(Number),0,0);
+
+    const end = new Date(CBA.referenceMonday);
+    end.setDate(end.getDate() + day);
+    end.setHours(...et.split(':').map(Number),0,0);
+    if (end <= start) end.setDate(end.getDate() + 1);
+
+    
+CBA.primeEvents.push({
+  id: crypto.randomUUID(),
+  type,
+  start: new Date(start),  // ✅ force Date
+  end: new Date(end)       // ✅ force Date
+});
+
+
+    expandCbas();
+    renderPrimeEvents();
+    renderOngoingCbas();
+    renderUpcomingCbas();
+    window.applyCbaPatch(getPrimeBusinessEventsFromCbaUI());
+  });
+
+  function renderUpcomingCbas() {
+  const box = document.getElementById('cba-upcoming-list');
+  box.innerHTML = '';
+
+  //const now = new Date();
+  const now = getOperationalNow();
+  const horizon = new Date(now.getTime() + 5 * 60 * 60 * 1000);
+
+  
+const filters = getSystemFilter();
+
+
+
+
+const activePrimeEvents = getActivePrimeEvents(now);
+const hasActivePrimeEvents = activePrimeEvents.length > 0;
+
+const upcoming = CBA.expandedCbas.filter(c => {
+  if (c.start <= now || c.start > horizon) return false;
+
+  if (c.primeEvent === 'BAU Daily Activity') return true;
+
+  if (!hasActivePrimeEvents) return false;
+
+  return activePrimeEvents.includes(c.primeEvent);
+});
+
+
+
+
+
+  if (upcoming.length === 0) {
+    box.textContent = 'No upcoming CBA in next 5 hours.';
+    return;
+  }
+
+  const groups = {};
+  upcoming.forEach(c => {
+    const g = c.primeEvent || 'BAU Daily Activity';
+    groups[g] ??= [];
+    groups[g].push(c);
+  });
+
+  Object.keys(groups).forEach(group => {
+    const det = document.createElement('details');
+    det.open = false;
+
+    const sum = document.createElement('summary');
+    sum.textContent = `${group} (${groups[group].length})`;
+    sum.style.fontWeight = '700';
+    det.appendChild(sum);
+
+    groups[group].forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'pm-card';
+      card.style.cursor = 'pointer';
+
+      card.innerHTML = `
+        <b>${c.category}</b><br>
+        Starts at:
+        ${c.start.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}<br>
+        <span class="hint">Systems: ${c.systems.join(', ')}</span>
+      `;
+
+      card.onclick = () => {
+        alert(`${c.description}\n\nSystems:\n${c.systems.join(', ')}`);
+      };
+
+      det.appendChild(card);
+    });
+
+    box.appendChild(det);
+  });
+}
+function getSystemFilter() {
+  const el = document.getElementById('cbaSystemFilter');
+  if (!el || !el.value.trim()) return null;
+  return el.value
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+  
+const PRIME_EVENT_COLORS = {
+  'Local Race': '#1f77b4',
+  'Commingling': '#ff7f0e',
+  'Simulcast': '#2ca02c',
+  'Mark Six': '#d62728',
+  'Football': '#9467bd'
+};
+
+function systemMatch(cba, filters) {
+  if (!filters) return true;
+  return cba.systems.some(sys =>
+    filters.includes(sys.toLowerCase())
+  );
+}
+
+</script>
+
+<script>
+/* ============================================================
+   CBA Mode — FINAL ARCHITECTURALLY CORRECT VERSION
+   ============================================================ */
+
+function enterCbaMode() {
+  const layout = document.getElementById('layout');
+  const workspace = document.getElementById('workspace');
+  const cbaPanel = document.getElementById('cba-calendar-panel');
+  const incident = workspace?.querySelector('.incident');
+
+  
+    if (!CBA.referenceMonday) {
+    const today = new Date();
+    CBA.referenceMonday = toMonday(today);
+    }
+
+  if (!layout || !workspace || !cbaPanel) return;
+
+  // ✅ Hide ONLY the incident content
+  if (incident) incident.hidden = true;
+
+  // ✅ Show CBA panel
+  cbaPanel.hidden = false;
+
+  // ✅ Fullscreen layout (sidebar hidden via CSS)
+  layout.classList.add('cba-fullscreen');
+
+  if (typeof startOngoingTimer === 'function') {
+    startOngoingTimer();
+  }
+}
+
+function exitCbaMode() {
+  const layout = document.getElementById('layout');
+  const workspace = document.getElementById('workspace');
+  const cbaPanel = document.getElementById('cba-calendar-panel');
+  const incident = workspace?.querySelector('.incident');
+
+  if (!layout || !workspace || !cbaPanel) return;
+
+  // ✅ Hide CBA panel
+  cbaPanel.hidden = true;
+
+  // ✅ Restore incident content
+  if (incident) incident.hidden = false;
+
+  layout.classList.remove('cba-fullscreen');
+
+  if (typeof stopOngoingTimer === 'function') {
+    stopOngoingTimer();
+  }
+}
+
+/* ✅ Explicit export for menu wiring */
+window.enterCbaMode = enterCbaMode;
+window.exitCbaMode = exitCbaMode;
+
+function getActivePrimeEvents(now = getOperationalNow()) {
+  const ts = now.getTime();
+
+  return CBA.primeEvents
+    .filter(pe => {
+      if (!pe.start || !pe.end) return false;
+
+      const s = pe.start instanceof Date
+        ? pe.start.getTime()
+        : Date.parse(pe.start);
+
+      const e = pe.end instanceof Date
+        ? pe.end.getTime()
+        : Date.parse(pe.end);
+
+      return ts >= s && ts <= e;
+    })
+    .map(pe => pe.type);
+}
+window.getActivePrimeEvents = getActivePrimeEvents;
+
+
+function getReferenceNow() {
+  // Use current time, but mapped into the reference week
+  const realNow = new Date();
+  const ref = new Date(CBA.referenceMonday);
+
+  ref.setHours(
+    realNow.getHours(),
+    realNow.getMinutes(),
+    realNow.getSeconds(),
+    realNow.getMilliseconds()
+  );
+
+  return ref;
+}
+window.getReferenceNow = getReferenceNow;
+
+function getOperationalNow() {
+  if (!CBA.referenceMonday) return new Date();
+
+  const realNow = new Date();
+  const refNow = new Date(CBA.referenceMonday);
+
+  refNow.setHours(
+    realNow.getHours(),
+    realNow.getMinutes(),
+    realNow.getSeconds(),
+    realNow.getMilliseconds()
+  );
+
+  return refNow;
+}
+window.getOperationalNow = getOperationalNow;
+</script>
+<script>
+    document.getElementById('excelToJsonInput').addEventListener('change', () => {
+  const input = document.getElementById('excelToJsonInput');
+  if (!input.files.length) {
+    alert('Please select an Excel file');
+    return;
+  }
+
+  excelFileToJson(input.files[0], json => {
+    console.log('Converted JSON:', json);
+
+    // ✅ OPTIONAL: store in your CBA object
+    CBA.json = json;
+
+    // ✅ OPTIONAL: download JSON file
+    downloadJson(json, 'Converted.json');
+  });
+});
+function downloadJson(obj, filename) {
+  const blob = new Blob(
+    [JSON.stringify(obj, null, 2)],
+    { type: 'application/json' }
+  );
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+}
+function excelFileToJson(file, callback) {
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    // ✅ Always read first sheet
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    // ✅ Convert sheet to row objects using headers
+    const rows = XLSX.utils.sheet_to_json(worksheet, {
+      defval: "",
+      raw: false    // IMPORTANT: converts Excel times into strings
+    });
+
+    callback({
+      Sheet1: rows
+    });
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+</script>
+<script>
+/* ===============================
+   CBA RESOLUTION PATCH – V1.0
+   Does NOT modify other features
+================================ */
+
+/* ---------- GLOBAL HOLDERS ---------- */
+window._CBA_RULES = [];
+window._CBA_WEEK_RESULT = null;
+
+/* ---------- NORMALIZATION ---------- */
+function normalizeCbaRules(rawJson) {
+  return rawJson.Sheet1
+    .filter(r => r["Linked Prime Business Event"] !== "Non Event - Ignore")
+    .filter(r => r.From !== "Not Applicable")
+    .map(r => {
+      let links = r["Linked Prime Business Event"];
+      let linkedTypes = [];
+
+      if (/Local Race/.test(links)) linkedTypes.push("Local Race");
+      if (/Commingling/.test(links)) linkedTypes.push("Commingling");
+      if (/Simulcast/.test(links)) linkedTypes.push("Simulcast");
+      if (/Mark Six/.test(links)) linkedTypes.push("Mark Six");
+      if (/Football/.test(links)) linkedTypes.push("Football");
+      if (/Everyday|BAU Activity/.test(links)) linkedTypes.push("BAU");
+
+      return {
+        raw: r,
+        linkedTypes,
+        frequency: r.Frequency,
+        fromExpr: r.From,
+        toExpr: r.To,
+        exDay: r["Exception Day"],
+        exFrom: r["Exception From"],
+        exTo: r["Exception To"],
+        label: r.CBA,
+        systems: r["IT Systems"]
+      };
+    });
+}
+
+/* ---------- DATE HELPERS ---------- */
+function addMinutes(d, min) {
+  return new Date(d.getTime() + min * 60000);
+}
+function addDays(d, days) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + days);
+  return x;
+}
+
+/* ---------- PARSING ---------- */
+
+function resolveTime(expr, ctx) {
+  if (!expr || typeof expr !== "string") return null;
+
+  expr = expr.trim();
+
+  /* -------- Absolute time (HH:MM:SS) -------- */
+  if (/^\d{2}:\d{2}:\d{2}$/.test(expr)) {
+    const [h, m, s] = expr.split(":").map(Number);
+    const d = new Date(ctx.date);
+    d.setHours(h, m, s, 0);
+    return d;
+  }
+
+  /* -------- Event Start Time +/- minutes -------- */
+  if (/^Event Start Time/i.test(expr)) {
+    if (!(ctx.eventStart instanceof Date)) return null;
+
+    let minutes = 0;
+    const m = expr.match(/([+-]\s*\d+)/);
+    if (m) minutes = parseInt(m[1].replace(/\s+/g, ""), 10);
+
+    const d = new Date(ctx.eventStart);
+    d.setMinutes(d.getMinutes() + minutes);
+    return d;
+  }
+
+  /* -------- Event End Time +/- minutes -------- */
+  if (/^Event End Time/i.test(expr)) {
+    if (!(ctx.eventEnd instanceof Date)) return null;
+
+    let minutes = 0;
+    const m = expr.match(/([+-]\s*\d+)/);
+    if (m) minutes = parseInt(m[1].replace(/\s+/g, ""), 10);
+
+    const d = new Date(ctx.eventEnd);
+    d.setMinutes(d.getMinutes() + minutes);
+    return d;
+  }
+
+  /* -------- Event Start Day +/- N at HH(:MM) AM/PM -------- */
+  if (/^Event Start Day/i.test(expr)) {
+    if (!(ctx.eventStart instanceof Date)) return null;
+
+    let dayOffset = 0;
+    const dm = expr.match(/([+-]\s*\d+)/);
+    if (dm) dayOffset = parseInt(dm[1].replace(/\s+/g, ""), 10);
+
+    const tm = expr.match(/at\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+
+    const d = new Date(ctx.eventStart);
+    d.setDate(d.getDate() + dayOffset);
+
+    if (tm) {
+      let h = parseInt(tm[1], 10);
+      const min = tm[2] ? parseInt(tm[2], 10) : 0;
+      const ampm = tm[3].toUpperCase();
+
+      if (ampm === "PM" && h < 12) h += 12;
+      if (ampm === "AM" && h === 12) h = 0;
+
+      d.setHours(h, min, 0, 0);
+    }
+
+    return d;
+  }
+
+  return null;
+}
+function normalizePrimeEventType(type) {
+  if (!type) return '';
+
+  const t = type.toLowerCase().replace(/\s+/g, '');
+
+  if (t === 'marksix' || t === 'mark6' || t === 'mark6lottery') {
+    return 'Mark Six';
+  }
+  if (t === 'localrace') return 'Local Race';
+  if (t === 'commingling') return 'Commingling';
+  if (t === 'simulcast') return 'Simulcast';
+  if (t === 'football') return 'Football';
+
+  return type; // fallback
+}
+/* ---------- CORE ENGINE ---------- */
+function resolveCbasForWeek(events, cbas) {
+  const now = new Date();
+  const out = {};
+
+  cbas.forEach(rule => {
+    rule.linkedTypes.forEach(t => {
+
+      let targets = [];
+      if (t === "BAU") {
+        targets = [{ type: "BAU", start: now, end: now }];
+      } else {
+        targets = events.filter(e =>
+          normalizePrimeEventType(e.type) === t
+        );
+      }
+
+      if (!targets.length) return;
+
+      targets.forEach(evt => {
+        const ctx = {
+          date: evt.start,
+          eventStart: evt.start,
+          eventEnd: evt.end
+        };
+
+        let from = resolveTime(rule.fromExpr, ctx);
+        let to = resolveTime(rule.toExpr, ctx);
+        if (!from || !to) return;
+
+        if (to < from) to = addDays(to, 1);
+
+        // ---------- EXCEPTION HANDLING ----------
+        let exceptionApplied = false;
+        let exceptionWindow = null;
+
+        // Case 1: Timed exception
+        if (
+          rule.exDay &&
+          rule.exFrom &&
+          rule.exTo &&
+          exceptionDayApplies(rule.exDay, ctx, now)
+        ) {
+          const exFrom = resolveTime(rule.exFrom, ctx);
+          const exTo = resolveTime(rule.exTo, ctx);
+
+          if (exFrom && exTo) {
+            let exToFinal = exTo < exFrom ? addDays(exTo, 1) : exTo;
+            exceptionApplied = true;
+            exceptionWindow = {
+              from: exFrom,
+              to: exToFinal
+            };
+          }
+        }
+        // Case 2: Maintenance Window (no timing)
+        else if (rule.exDay === "Maintenance Window") {
+          exceptionApplied = true;
+          exceptionWindow = null;
+        }
+
+        // ---------- TODAY FILTER ----------
+        if (!isSameDay(from, now) && !isSameDay(to, now)) return;
+
+        // ---------- STATUS ----------
+        let status = null;
+        if (now >= from && now <= to) status = "ONGOING";
+        else if (now < from) status = "UPCOMING";
+        else return;
+
+        const key = t === "BAU" ? "BAU Daily Activity" : t;
+        if (!out[key]) out[key] = [];
+
+        out[key].push({
+          label: rule.label,
+          from,
+          to,
+          status,
+          systems: rule.systems,
+
+          // ✅ NEW FIELDS
+          exceptionApplied,
+          exceptionWindow
+        });
+      });
+    });
+  });
+
+  return out;
+}
+
+
+function exceptionDayApplies(exceptionDay, ctx, now) {
+  if (!exceptionDay || typeof exceptionDay !== 'string') return false;
+
+  const ex = exceptionDay.trim();
+
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+
+  const weekdays = [
+    'Sunday', 'Monday', 'Tuesday',
+    'Wednesday', 'Thursday', 'Friday', 'Saturday'
+  ];
+
+  // ---- Explicit weekday ----
+  if (weekdays.includes(ex)) {
+    return weekdays[now.getDay()] === ex;
+  }
+
+  // ---- Event Day +/- N ----
+  const match = ex.match(/^Event Day\s*([+-])\s*(\d+)$/);
+  if (match && ctx.eventStart instanceof Date) {
+    const sign = match[1] === '+' ? 1 : -1;
+    const offset = parseInt(match[2], 10);
+
+    const target = new Date(ctx.eventStart);
+    target.setHours(0, 0, 0, 0);
+    target.setDate(target.getDate() + sign * offset);
+
+    return target.getTime() === today.getTime();
+  }
+
+  // ---- Event Day + Weekend ----
+  if (ex === 'Event Day + Weekend' && ctx.eventStart instanceof Date) {
+    const isWeekend = today.getDay() === 0 || today.getDay() === 6;
+    const eventDay = new Date(ctx.eventStart);
+    eventDay.setHours(0, 0, 0, 0);
+    return isWeekend && today.getTime() === eventDay.getTime();
+  }
+
+  // ---- Maintenance Window ----
+  if (ex === 'Maintenance Window') {
+    // Phase‑1: always considered applicable for annotation
+    return true;
+  }
+
+  return false;
+}
+
+
+/* ---------- Filter By IT Helper ---------- */
+
+function matchesItSystemFilter(cba, filterText) {
+  if (!filterText) return true; // no filter → include all
+
+  if (!cba.systems) return false;
+
+  const filters = filterText
+    .split(",")
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!filters.length) return true;
+
+  return filters.some(f =>
+    cba.systems.toLowerCase().includes(f)
+  );
+}
+/* ---------- RENDER ---------- */
+function renderCbaAccordion(data) {
+  const root = document.getElementById("cba-today-accordion");
+  const filterText = document.getElementById("cbaSystemFilter")?.value || "";
+  root.innerHTML = "";
+
+  Object.entries(data).forEach(([group, rows]) => {
+
+    const filteredRows = rows.filter(cba =>
+      matchesItSystemFilter(cba, filterText)
+    );
+
+    if (!filteredRows.length) return;
+
+    const details = document.createElement("details");
+    const summary = document.createElement("summary");
+    summary.textContent = group;
+    details.appendChild(summary);
+
+    filteredRows.forEach(r => {
+      const div = document.createElement("div");
+      div.style.padding = "6px";
+
+      let exceptionHtml = "";
+
+      if (r.exceptionApplied) {
+        if (r.exceptionWindow) {
+          exceptionHtml = `
+            <div style="color:#c53030;font-weight:700;margin-top:4px">
+              ⚠ Exception Applied<br/>
+              ${r.exceptionWindow.from.toLocaleString()}
+              →
+              ${r.exceptionWindow.to.toLocaleString()}
+            </div>
+          `;
+        } else {
+          exceptionHtml = `
+            <div style="color:#c53030;font-weight:700;margin-top:4px">
+              ⚠ No Impact During Maintenance Window
+            </div>
+          `;
+        }
+      }
+
+      div.innerHTML = `
+        <b>${r.status}</b><br/>
+        ${r.label}<br/>
+        ${r.from.toLocaleString()} → ${r.to.toLocaleString()}<br/>
+        <small>Systems: ${r.systems || "-"}</small>
+        ${exceptionHtml}
+      `;
+
+      details.appendChild(div);
+    });
+
+    root.appendChild(details);
+  });
+}
+
+function getLinkedCbaDescriptions() {
+  const situationEl = document.getElementById('situation');
+  if (!situationEl) return [];
+
+  const text = situationEl.value || '';
+  const lines = text.split('\n');
+
+  return lines
+    .map(l => l.trim())
+    .filter(l => l.startsWith('* '))
+    .map(l => l.substring(2).trim());
+}
+
+function appendCbasToSituation(descriptions) {
+  const situationEl = document.getElementById('situation');
+  if (!situationEl) return;
+
+  let text = situationEl.value || '';
+  const linked = getLinkedCbaDescriptions();
+
+  // Remove trailing whitespace/newlines
+  text = text.replace(/\s*$/, '');
+
+  // Ensure exactly one blank line before header
+  if (text !== '') {
+    text += '\n\n';
+  }
+
+  // Add header if not already present
+  if (!text.includes('Potential Impacted Critical Business Activities (CBAs):')) {
+    text += 'Potential Impacted Critical Business Activities (CBAs):\n';
+  }
+
+  descriptions.forEach(desc => {
+    if (!linked.includes(desc)) {
+      text += `* ${desc}\n`;
+    }
+  });
+
+  // Ensure exactly one blank line after the list
+  text = text.replace(/\n*$/, '\n\n');
+
+  situationEl.value = text;
+}
+
+// Extract Prime Business Events from CBA UI state
+function getPrimeBusinessEventsFromCbaUI() {
+  if (!Array.isArray(CBA.primeEvents)) return [];
+
+  const results = [];
+
+  CBA.primeEvents.forEach(e => {
+    let type = e.eventType || e.type || e.peType;
+    let start = null;
+    let end = null;
+
+    /* ---- CASE 1: Explicit DateTime fields ---- */
+    if (e.startDateTime && e.endDateTime) {
+      start = new Date(e.startDateTime);
+      end   = new Date(e.endDateTime);
+    }
+
+    /* ---- CASE 2: Legacy Date objects ---- */
+    else if (e.start instanceof Date && e.end instanceof Date) {
+      start = e.start;
+      end   = e.end;
+    }
+
+    /* ---- CASE 3: Day + time strings ---- */
+    else if (
+      CBA.referenceMonday &&
+      typeof e.day === "number" &&
+      typeof e.startTime === "string" &&
+      typeof e.endTime === "string"
+    ) {
+      const baseDate = new Date(CBA.referenceMonday);
+      baseDate.setDate(baseDate.getDate() + e.day);
+
+      const [sh, sm] = e.startTime.split(":").map(Number);
+      const [eh, em] = e.endTime.split(":").map(Number);
+
+      start = new Date(baseDate);
+      start.setHours(sh, sm, 0, 0);
+
+      end = new Date(baseDate);
+      end.setHours(eh, em, 0, 0);
+
+      if (end < start) {
+        end.setDate(end.getDate() + 1);
+      }
+    }
+
+    /* ---- VALIDATION ---- */
+    if (!type || !(start instanceof Date) || !(end instanceof Date)) return;
+    if (isNaN(start) || isNaN(end)) return;
+
+    results.push({ type, start, end });
+  });
+
+  return results;
+}
+
+
+
+/* ---------- WIRING ---------- */
+window.applyCbaPatch = function(events) {
+  if (!window._CBA_RULES.length) return;
+  const result = resolveCbasForWeek(events, window._CBA_RULES);
+  window._CBA_WEEK_RESULT = result;
+  renderCbaAccordion(result);
+};
+
+
+
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate();
+}
+
+window.isSameDay = isSameDay;
+</script>
+
+<script>
+//MENU HELPER
+
+
+function clearMainMenuSelection() {
+  document
+    .querySelectorAll(".menu-btn.active")
+    .forEach(btn => btn.classList.remove("active"));
+}
+window.clearMainMenuSelection = clearMainMenuSelection;
+
+
+function setWorkspaceActive(actionId) {
+  document
+    .querySelectorAll(".workspace-action.active")
+    .forEach(el => el.classList.remove("active"));
+
+  const el = document.getElementById(actionId);
+  if (el) el.classList.add("active");
+}
+window.setWorkspaceActive = setWorkspaceActive;
+
+</script>
+<script>
+    document.getElementById('searchImpactedCbas')
+  .addEventListener('click', openCbaImpactSearch);
+
+
+const SYSTEM_ALIASES = {
+  '3in1': ['3in1','3 in 1', '3inone', '3in1app'],
+  // future-safe:
+  'ewin': ['ewin2', 'ewin'],
+  'CIAM': ['CIAM*', 'CIAM'],
+};
+
+
+function openCbaImpactSearch() {
+  const inputEl = document.getElementById('impactAreas');
+  const input = inputEl ? inputEl.value : '';
+  const terms = input
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const list = document.getElementById('cbaImpactList');
+  list.innerHTML = '';
+
+  if (!terms.length || !window._CBA_WEEK_RESULT) {
+    list.innerHTML = '<div class="hint">No impacted areas specified</div>';
+    showCbaImpactModal();
+    return;
+  }
+
+  const linkedDescriptions = getLinkedCbaDescriptions();
+  const matches = [];
+
+  Object.values(window._CBA_WEEK_RESULT)
+    .flat()
+    .forEach(cba => {
+      if (!cba.systems) return;
+
+      // 1. Split systems into tokens
+      const systemTokens = cba.systems
+        .split(',')
+        .map(s => normalizeSystemCode(s));
+
+      // 2. Check each impacted term
+      for (const term of terms) {
+        const normalizedTerm = normalizeSystemCode(term);
+
+        // 2a. Direct match
+        if (systemTokens.includes(normalizedTerm)) {
+          matches.push(cba);
+          return;
+        }
+
+        // 2b. Alias match (e.g. "3 in 1")
+        const aliases = SYSTEM_ALIASES[normalizedTerm];
+        if (
+          aliases &&
+          aliases.some(a => systemTokens.includes(a))
+        ) {
+          matches.push(cba);
+          return;
+        }
+      }
+    });
+
+  if (!matches.length) {
+    list.innerHTML = '<div class="hint">No matching CBAs found</div>';
+    showCbaImpactModal();
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.style.width = '100%';
+  table.style.borderCollapse = 'collapse';
+
+  matches.forEach((cba, idx) => {
+    const tr = document.createElement('tr');
+
+    const tdCheck = document.createElement('td');
+    tdCheck.style.width = '32px';
+    tdCheck.style.verticalAlign = 'top';
+
+    const alreadyLinked = linkedDescriptions.includes(cba.label);
+
+    tdCheck.innerHTML = `
+      <input
+        type="checkbox"
+        data-cba-index="${idx}"
+        ${alreadyLinked ? 'checked disabled' : ''}
+      >
+    `;
+    tr.appendChild(tdCheck);
+
+    const tdDesc = document.createElement('td');
+    tdDesc.style.paddingBottom = '10px';
+
+    let exceptionHtml = '';
+    if (cba.exceptionApplied) {
+      exceptionHtml = cba.exceptionWindow
+        ? `
+          <div style="color:#c53030;font-weight:700;font-size:12px;margin-top:4px">
+            ⚠ Exception Applied<br/>
+            ${cba.exceptionWindow.from.toLocaleString()}
+            →
+            ${cba.exceptionWindow.to.toLocaleString()}
+          </div>
+        `
+        : `
+          <div style="color:#c53030;font-weight:700;font-size:12px;margin-top:4px">
+            ⚠ Maintenance Window
+          </div>
+        `;
+    }
+
+    tdDesc.innerHTML = `
+      ${cba.label}
+      ${exceptionHtml}
+    `;
+
+    tr.appendChild(tdDesc);
+    table.appendChild(tr);
+  });
+
+  list.appendChild(table);
+  window._IMPACT_CBA_MATCHES = matches;
+
+  showCbaImpactModal();
+}
+function showCbaImpactModal() {
+  document.getElementById('cbaImpactModal').style.display = 'block';
+}
+
+function closeCbaImpactModal() {
+  document.getElementById('cbaImpactModal').style.display = 'none';
+}
+
+function linkSelectedCbas() {
+  const checks = document.querySelectorAll(
+    '#cbaImpactList input[type=checkbox]:checked:not(:disabled)'
+  );
+
+  if (!checks.length) {
+    closeCbaImpactModal();
+    return;
+  }
+
+  const descriptions = [];
+
+  checks.forEach(chk => {
+    const cba = window._IMPACT_CBA_MATCHES[chk.dataset.cbaIndex];
+    if (cba && cba.label) {
+      descriptions.push(cba.label);
+    }
+  });
+
+  appendCbasToSituation(descriptions);
+  closeCbaImpactModal();
+}
+
+
+
+function normalizeSystemCode(str) {
+  if (!str) return '';
+
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, ''); // remove spaces, hyphens, *, dots, etc.
+}
+window.normalizeSystemCode = normalizeSystemCode;
+</script>
+
+<script>
+    (function wireCbaSelectAll() {
+  const btn = document.getElementById('cbaSelectAllBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    const checkboxes = Array.from(
+      document.querySelectorAll('#cbaImpactModal input[type="checkbox"]')
+    );
+
+    if (checkboxes.length === 0) return;
+
+    const allChecked = checkboxes.every(cb => cb.checked);
+    checkboxes.forEach(cb => cb.checked = !allChecked);
+
+    // Update button label dynamically (nice UX)
+    btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+  });
+})();
+(function wireCbaTrackAsWorkstream() {
+  const btn = document.getElementById('cbaTrackWsBtn');
+  if (!btn) return;
+
+  function extractCbaDescriptionFromCheckbox(cb) {
+  const row = cb.closest('tr');
+  if (!row || row.children.length < 2) {
+    return 'CBA Validation Task';
+  }
+
+  const descCell = row.children[1];
+
+  // Clone so we can safely remove warnings/icons
+  const clone = descCell.cloneNode(true);
+
+  // Remove warning indicators like "⚠ Maintenance Window"
+  clone.querySelectorAll('div').forEach(d => d.remove());
+
+  // Normalize whitespace
+  const text = clone.textContent
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return text
+    ? `CBA Validation Task: ${text}`
+    : 'CBA Validation Task';
+};
+
+
+  btn.addEventListener('click', () => {
+    const root = document.querySelector('#workspace .incident');
+    if (!root) {
+      alert('No active incident to track workstreams.');
+      return;
+    }
+
+    const checked = Array.from(
+      document.querySelectorAll('#cbaImpactModal input[type="checkbox"]:checked')
+    );
+
+    if (checked.length === 0) {
+      alert('Please select at least one CBA.');
+      return;
+    }
+
+    const tbody = root.querySelector('#wsBody');
+    if (!tbody) return;
+
+    checked.forEach(cb => {
+      const label = cb.closest('label')?.textContent?.trim()
+                    || cb.parentElement?.textContent?.trim()
+                    || 'CBA Task';
+
+      // Use your existing builder
+      addWsRow(root);
+
+      const tr = tbody.lastElementChild;
+      if (!tr) return;
+        const taskText = extractCbaDescriptionFromCheckbox(cb);
+      // Task Description
+      const desc = tr.querySelector('td:nth-child(3) textarea');
+      if (desc) desc.value = taskText;
+
+      // Status defaults to Ongoing
+      const status = tr.querySelector('td:nth-child(5) select');
+      if (status) {
+        status.value = 'Ongoing';
+        status.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    // Renumber rows visually
+    Array.from(tbody.querySelectorAll('tr')).forEach((tr, idx) => {
+      const num = tr.querySelector('td:nth-child(2)');
+      if (num) num.textContent = String(idx + 1);
+    });
+
+    closeCbaImpactModal();
+    alert(`${checked.length} CBA(s) added to Workstream.`);
+  });
+})();
+
 </script>
 </html>
