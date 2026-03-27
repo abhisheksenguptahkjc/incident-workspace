@@ -3177,7 +3177,7 @@ const sev  = get('severity')     ?? '—';
 const inc  = get('incidentNumber') ?? '—';
 const head = get('shortDesc')    ?? '—';
 const u    = get('updateCode')   ?? '';
-const line = `${sev} — ${inc} — ${escapeHtml(safeHtml(head))}`;
+const line = `${sev} — ${inc} — ${safeHtml(head)}`;
 
 // When Update Code is 6.3, make Incident Number & Heading green for Teams copy
 /**if (u === '6.3') {
