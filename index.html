@@ -3145,7 +3145,13 @@ function completeAllWorkstreams(root) {
     }
   });
 }
-    
+
+    function nl2brNew(text) {
+  return text
+    .split(/\r?\n/)
+    .map(line => escapeHtml(line))
+    .join('<br>');
+}
 function safeHtml(s) {
   return s
     .replace(/&/g, '&amp;')
@@ -3206,7 +3212,8 @@ setHtml(
   setText('pv_time', (get('startTs') || '').replace('T', ' ') || '—');
   setText('pv_lead', get('imtLead'));
   setText('pv_support', get('imtSupport'));
-  setText('pv_situation', get('situation'));
+  //setText('pv_situation', get('situation'));
+  setHtml('pv_situation', nl2brNew(get('situation')));   
   setText('pv_cust', get('custEnq'));
   setText('pv_media', get('mediaEnq'));
   setText('pv_impact', get('impactAreas'));
