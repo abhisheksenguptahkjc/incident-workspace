@@ -5,6 +5,270 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>HKJC Incident Workspace V5.0</title>
 <style>
+.dr-questionnaire-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 14px;
+
+  /* ✅ Yellow background */
+  background: #ffdd00;
+
+  /* ✅ HKJC / Enterprise blue */
+  color: #134094;
+
+  border: 1px solid #e6c800;
+  border-radius: 10px;
+
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.dr-questionnaire-btn:hover {
+  background: #ffe53b;
+}
+
+.dr-questionnaire-btn:active {
+  transform: translateY(1px);
+}
+
+.dr-questionnaire-btn:focus-visible {
+  outline: 3px solid #134094;
+  outline-offset: 2px;
+}
+
+.dr-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.dr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.dr-icon {
+  width: 18px;
+  height: 18px;
+}
+
+
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 12px;
+  border: 1px solid #c8d6ff;
+  background: #eef3ff;
+  color: #1850b5;
+  cursor: pointer;
+
+  padding: 0;
+}
+
+.refresh-btn:hover {
+  background: #e2ebff;
+}
+
+.refresh-btn:active {
+  transform: scale(0.96);
+}
+
+.refresh-icon {
+  width: 18px;
+  height: 18px;
+}
+    /* Summary modal table header styling */
+#summaryTable thead th {
+  background-color: #eef3ff;   /* soft blue */
+  color: #134094;              /* Copilot blue */
+  font-weight: 700;
+}
+    /* Yes / No radios inline */
+    /* Dialog layout */
+
+modal-soe[open] {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3000;
+}
+
+
+/* Scroll ONLY the body */
+.modal-soe-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+/* Prevent header and footer from scrolling */
+.modal-soe-header,
+.modal-soe-footer {
+  flex: 0 0 auto;
+}
+.dr-radio-row {
+  display: flex;
+  gap: 24px;
+  margin: 6px 0 8px;
+}
+
+.dr-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+    .dr-questionnaire-only {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+    /* --- DR Situation Table --- */
+.dr-situation-table {
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+
+.dr-situation-table th,
+.dr-situation-table td {
+  border: 1px solid #1850b5;
+  padding: 10px;
+  text-align: center;
+}
+
+.dr-situation-table thead th {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1850b5; /* Deep blue like screenshot */
+  background: #ffffff;
+}
+
+    /* --- DR JSON + Site input row --- */
+.dr-input-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 14px;
+  flex-wrap: wrap; /* allows wrap on smaller screens */
+}
+
+/* Each control block */
+.dr-input-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+}
+
+/* Give dropdown more room */
+.dr-input-wide {
+  min-width: 260px;
+  flex-grow: 1;
+}
+
+/* Make file inputs visually consistent */
+.dr-input-group input[type="file"],
+.dr-input-group select {
+  padding: 6px;
+}
+    /* --- Sit‑Rep header inline layout --- */
+.sitrep-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sitrep-title {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+/* --- DR toggle alignment --- */
+.dr-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dr-toggle-label {
+  font-weight: 600;
+  color: #1850b5;
+  white-space: nowrap;
+}
+
+/* --- Slider toggle (iOS‑style) --- */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Slider background */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #d1d5db;
+  transition: 0.25s;
+  border-radius: 999px;
+}
+
+/* Slider knob */
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background-color: #ffffff;
+  transition: 0.25s;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+/* Checked state */
+.switch input:checked + .slider {
+  background-color: #1850b5;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+/* Keyboard accessibility */
+.switch input:focus-visible + .slider {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+</style>
+<style>
     /* ===== Sequence-of-Events style modal (reused for CBA) ===== */
 
 
@@ -922,7 +1186,11 @@ dialog#workLogDialog,
     <div id="incidentBar">
       <!-- Pills injected here -->
       <button class="add-btn" id="btnAddIncident">+ New Incident</button>
+      <button id="btnSummary" class="add-btn" style="margin-top:8px;">
+  📊 Summary
+</button>
     </div>
+    
   </aside>
 
   <!-- MAIN WORK AREA -->
@@ -1011,8 +1279,19 @@ dialog#workLogDialog,
 
     <!-- ========== Sit-Rep (IDs preserved) ========== -->
     <section id="sitrep" class="panel" role="tabpanel" aria-labelledby="tab-sitrep">
-      <h2>Sit-Rep<div id="clearallsitrep"></div></h2>
+      <h2 class="sitrep-header">
+  <span class="sitrep-title">Sit‑Rep</span>
 
+  <div class="dr-toggle-wrap">
+    <span class="dr-toggle-label">DR Sit‑Rep</span>
+
+    <label class="switch">
+      <input type="checkbox" id="drToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+</h2>
+      
       <div class="headline">
         <div class="text" id="headlineText">Heads Up - — - — - —</div>
         <div style="display:flex; gap:8px; align-items:center;">
@@ -1082,6 +1361,108 @@ dialog#workLogDialog,
           <input type="file" id="importFile" accept="application/json" style="display:none;"/>
         </div>
       </div>
+      <div id="drContainer" style="display:none; margin-top:16px;"> 
+        
+        <div class="dr-input-row">
+
+  <div class="dr-input-group">
+    <label for="appJsonInput">Application JSON</label>
+    <input type="file" id="appJsonInput" accept=".json">
+  </div>
+
+  <div class="dr-input-group">
+    <label for="cbaJsonInput">CBA JSON</label>
+    <input type="file" id="cbaJsonInput" accept=".json">
+  </div>
+
+  <div class="dr-input-group dr-input-wide">
+    <label for="impactedSiteDropdown">Impacted Site</label>
+    <select id="impactedSiteDropdown">
+      <option value="">Select Site</option>
+    </select>
+  </div>
+
+</div>
+        
+        <div style="margin-top:12px;">
+            <label>Recovered Applications (comma separated system codes):
+                
+                <button id="refreshSituationBtn" class="refresh-btn" type="button">
+ <svg
+  class="refresh-icon"
+  viewBox="0 0 64 64"
+  aria-hidden="true">
+  <!-- Top arrow -->
+  <path
+    d="M46 14
+       C36 4 20 6 14 18
+       h8
+       l-12 14
+       l-12-14
+       h8
+       C10 6 30 0 44 12
+       Z"
+    fill="currentColor"/>
+  
+  <!-- Bottom arrow -->
+  <path
+    d="M18 50
+       C28 60 44 58 50 46
+       h-8
+       l12-14
+       l12 14
+       h-8
+       C54 58 34 64 20 52
+       Z"
+    fill="currentColor"/>
+</svg>
+  
+</button>
+            </label>
+            <textarea id="recoveredApps" rows="3" style="width:100%;"></textarea>
+            
+        </div>
+        
+        
+<div class="dr-questionnaire-only">
+  <button class="btn dr-questionnaire-btn" type="button" id="drQuestionnaireBtn">
+  <svg
+    class="dr-icon"
+    viewBox="0 0 24 24"
+    aria-hidden="true">
+    <!-- Clipboard body -->
+    <rect
+      x="6" y="4" width="12" height="16" rx="2"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"/>
+
+    <!-- Clip -->
+    <rect
+      x="9" y="2" width="6" height="4" rx="1"
+      fill="currentColor"/>
+
+    <!-- Checklist lines -->
+    <path
+      d="M9 11h6M9 14h6"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"/>
+
+    <!-- Check mark -->
+    <path
+      d="M8 16l2 2l4-4"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"/>
+  </svg>
+  Fill DR Questionnaire
+</button>
+
+</div>
+
+    </div>
 
       <div class="grid grid-2" style="margin-top:10px;">
         <div><label for="incidentNumber">Incident Number</label><input id="incidentNumber" type="text" placeholder="e.g. INC12345"/></div>
@@ -1139,8 +1520,34 @@ dialog#workLogDialog,
         <div><label for="imtSupport">IMT Support</label><input id="imtSupport" type="text"/></div>
       </div>
 
-      <label for="situation">Situation <span class="badge">Required</span></label>
-      <textarea id="situation" required placeholder="Describe the situation clearly"></textarea>
+     <label for="situation">
+  Situation <span class="badge">Required</span>
+</label>
+
+<!-- Normal Sit‑Rep Situation -->
+<textarea id="situation"
+          placeholder="Describe the situation clearly">
+</textarea>
+
+<!-- DR Sit‑Rep Situation Table (replaces textarea when DR ON) -->
+<div id="drSituationContainer" style="display:none;">
+
+  <table class="dr-situation-table" width="100%">
+    <thead>
+      <tr>
+        <th>CBA Category</th>
+        <th>Total Applications Impacted</th>
+        <th>% Recovered</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- rows injected by JS -->
+    </tbody>
+  </table>
+
+</div>
+      
+
 
       <div class="row">
         <div><label for="impactAreas">Impacted Areas
@@ -1726,6 +2133,24 @@ dialog#workLogDialog,
   </article>
 </section>
     <!-- ========== Work Log Modal + Fallback (IDs preserved) ========== -->
+     <dialog id="drQuestionnaireModalr">
+     <div class="modal modal-soe" >
+    <div class="modal-soe-header">
+      DR Questionnaire
+    </div>
+
+    <div class="modal-soe-body">
+      <div class="modal-soe-content" id="drQuestionnaireBody">
+        <!-- Questions injected by JS -->
+      </div>
+    </div>
+
+    <div class="modal-soe-footer">
+      <button class="btn secondary" id="drQCancel">Cancel</button>
+      <button class="btn" id="drQSave">Save</button>
+    </div>
+  </div>
+  </dialog>
     <dialog id="workLogDialog">
       <div class="modal">
         <header><h3 style="margin:0;font-size:16px;">Sequence Of Events</h3></header>
@@ -1747,6 +2172,49 @@ dialog#workLogDialog,
         </footer>
       </div>
     </div>
+    <dialog id="summaryModal">
+  <div class="modal">
+    <header>
+      <strong>Daily Incident Summary</strong>
+    </header>
+
+    <main>
+        
+
+
+      <table class="preview" id="summaryTable">
+        
+<thead>
+  <tr>
+    <th>Incident Number</th>
+    <th>Severity</th>
+    <th>Impacted Service</th>
+    <th>Incident Description</th>
+    <th>Status</th>
+    <th>Reported Time</th>
+    <th>Restored Time</th>
+    <th>Action</th>
+  </tr>
+</thead>
+
+        <tbody></tbody>
+      </table>
+
+      <div style="margin-top:10px; display:flex; gap:8px;">
+        <button id="summaryAddRow" class="btn secondary">+ Add Row</button>
+        <button id="summaryCopyTeams" class="btn">Copy to Teams</button>
+        <button id="summaryExportExcel" class="btn secondary">Export to Excel</button>
+
+      </div>
+    </main>
+
+    <footer>
+        
+      <button class="btn secondary" id="summaryClose">Close</button>
+      
+    </footer>
+  </div>
+</dialog>
 
   </section>
   </template>
@@ -2305,7 +2773,89 @@ function retagQuestionnaireRadios(root) {
 }
 window.retagQuestionnaireRadios = retagQuestionnaireRadios; // expose for dynamic calls (e.g. after hydrate)
   // ------------- Per-incident wiring -------------
-  function wireIncident(root){
+
+ 
+
+function handleDrToggle(root, isOn) {
+  const situationTA = root.querySelector('#situation');
+  const drSituation = root.querySelector('#drSituationContainer');
+  const drContainer = root.querySelector('#drContainer');
+
+  // Safety: exit if expected elements are missing
+  if (!situationTA || !drSituation || !drContainer) return;
+
+  if (isOn) {
+    // DR ON
+    situationTA.style.display = 'none';
+    drSituation.style.display = 'block';
+    drContainer.style.display = 'block';
+  } else {
+    // DR OFF
+    situationTA.style.display = 'block';
+    drSituation.style.display = 'none';
+    drContainer.style.display = 'none';
+  }
+}
+
+window.handleDrToggle = handleDrToggle; 
+
+function wireIncident(root)
+{
+    
+const drToggle = root.querySelector('#drToggle');
+// ✅ ADD inside wireIncident(root)
+root._drState = {
+  appData: [],
+  cbaData: [],
+  currentSituation: {},
+  recoveredSet: new Set()
+};
+
+root.querySelector('#appJsonInput').onchange = e => {
+  loadJsonFile(e.target, data => {
+    root._drState.appData = data;
+    populateImpactedSites(root);
+  });
+};
+
+root.querySelector('#cbaJsonInput').onchange = e => {
+  loadJsonFile(e.target, data => {
+    root._drState.cbaData = data.Sheet1 || data;
+  });
+};
+
+root.querySelector('#impactedSiteDropdown').onchange = () => buildSituation(root);
+
+root.querySelector('#refreshSituationBtn').onclick = () => {
+  const state = root._drState;
+  const apps = root.querySelector('#recoveredApps').value
+    .split(',')
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  apps.forEach(a => state.recoveredSet.add(a));
+  renderSituation(root);
+};
+
+
+if (drToggle) {
+  drToggle.addEventListener('change', e => {
+    handleDrToggle(root, e.target.checked);
+  });
+
+  // Ensure correct initial state
+  handleDrToggle(root, drToggle.checked);
+}
+
+
+
+const btn = root.querySelector('#drQuestionnaireBtn');
+  if (btn) {
+    btn.onclick = () => openDrQuestionnaire(root);
+  }
+
+
+
     // Sit-Rep field bindings + headline + preview
     $$('[id]', root).forEach(el => {
       if(['incidentNumber','shortDesc','severity','updateCode','startTs','imtLead','imtSupport',
@@ -2331,21 +2881,33 @@ window.retagQuestionnaireRadios = retagQuestionnaireRadios; // expose for dynami
     $('#copyHeadline', root)?.addEventListener('click', ()=>copyRich(htmlHeadline(root), textHeadline(root)));
     
 $('#copyPreview', root)?.addEventListener('click', () => {
-  if (!$('#situation', root).value.trim()) {
+  const drOn = root.querySelector('#drToggle')?.checked;
+  const situationTA = root.querySelector('#situation');
+
+  if (!drOn && !situationTA.value.trim()) {
     alert('Please fill out the Situation before copying.');
-    $('#situation', root).focus();
+    situationTA.focus();
     return;
   }
 
-  // NEW: ensure worklog textarea is sorted, then re-render the preview
   sortWorklogInPlace(root);
   renderPreview(root);
 
-  const html = previewYellowHtml(root), text = tablePreviewToText(root);
+  if (drOn) {
+    const html = buildDrCopyHtml(root);
+    copyRich(html, ''); // ✅ no text fallback for DR
+    return;
+  }
+
+  const html = previewYellowHtml(root);
+  const text = tablePreviewToText(root);
   copyRich(html, text);
 });
+  
 
-    // Import/Export Sit-Rep JSON (Download Preview / Upload)
+
+
+// Import/Export Sit-Rep JSON (Download Preview / Upload)
     $('#downloadPreviewBtn', root)?.addEventListener('click', ()=>downloadSitRep(root));
     $('#importFile', root)?.addEventListener('change', async (e)=>{
       const f=e.target.files?.[0]; if(!f) return; const text = await f.text();
@@ -3296,15 +3858,75 @@ function getWorklogTextarea(root) {
 function sortWorklogInPlace(root) {
   const ta = getWorklogTextarea(root);
   if (!ta) return;
-  const current = String(ta.value || '');
-  const sorted = normalizeAndSortWorklog(current);
-  // Only touch DOM if there is a real change (prevents unnecessary events)
-  if (sorted.trim() !== current.trim()) {
-    ta.value = sorted;
-    // Keep Preview / KPI / Appendix in sync
-    try { ta.dispatchEvent(new Event('input', { bubbles: true })); } catch {}
+
+  const original = String(ta.value || '');
+  const lines = original.split('\n');
+
+  const blocks = [];
+  let i = 0;
+
+  // ✅ Step 1: Build atomic blocks
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // ✅ DR Questionnaire block header
+    if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2} - DR Questionnaire$/.test(line)) {
+      const block = [line];
+      i++;
+
+      // absorb ALL indented lines
+      while (i < lines.length && /^\s+/.test(lines[i])) {
+        block.push(lines[i]);
+        i++;
+      }
+
+      blocks.push({
+        type: 'DR',
+        raw: block.join('\n'),
+        ts: line.slice(0, 16)
+      });
+      continue;
+    }
+
+    // ✅ Normal timestamped line
+    const tsMatch = line.match(/^(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}) - /);
+    if (tsMatch) {
+      blocks.push({
+        type: 'NORMAL',
+        raw: line,
+        ts: tsMatch[1]
+      });
+      i++;
+      continue;
+    }
+
+    // ✅ Orphan / free text
+    blocks.push({
+      type: 'FREE',
+      raw: line,
+      ts: null
+    });
+    i++;
+  }
+
+  // ✅ Step 2: Sort blocks by timestamp ONLY (DR stays atomic)
+  const sortedBlocks = blocks.sort((a, b) => {
+    if (!a.ts || !b.ts) return 0;
+    return new Date(a.ts.split('/').reverse().join('-')) -
+           new Date(b.ts.split('/').reverse().join('-'));
+  });
+
+  const sortedText = sortedBlocks.map(b => b.raw).join('\n');
+
+  // ✅ Step 3: Apply only if changed
+  if (sortedText.trim() !== original.trim()) {
+    ta.value = sortedText;
+    try {
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    } catch {}
   }
 }
+
   function escapeHtml(s){ return String(s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
   async function copyRich(html, text){
     try{
@@ -3314,12 +3936,26 @@ function sortWorklogInPlace(root) {
       alert('Copied to clipboard');
     }catch{ alert('Copy failed'); }
   }
-  function tablePreviewToText(root){
-    return $$('#previewTable tr', root).map(tr=>{
-      const th=tr.querySelector('th')?.textContent.trim()||''; const td=tr.querySelector('td')?.textContent.trim()||'';
-      return `${th}: ${td}`;
-    }).join('\n');
-  }
+ 
+window.copyRich = copyRich; 
+  function tablePreviewToText(root) {
+  const drOn = root.querySelector('#drToggle')?.checked;
+
+  return $$('#previewTable tr', root).map(tr => {
+    const th = tr.querySelector('th')?.textContent.trim() || '';
+    const tdEl = tr.querySelector('td');
+
+    // ✅ In DR mode, SKIP Situation from text/plain
+    if (drOn && th === 'Situation') {
+      return null;
+    }
+
+    const tdText = tdEl?.textContent.trim() || '';
+    return `${th}: ${tdText}`;
+  })
+  .filter(Boolean)
+  .join('\n');
+}
   function previewYellowHtml(root){
     const BORDER='#dbe3f0', BLUE='#134094', YELLOW='#ffdd00', DARK='#0f172a';
     const rows = $$('#previewTable tr', root).map(tr=>{
@@ -4044,6 +4680,8 @@ function collectKPI(root){
   });
   return { mte, mtd };
 }
+
+
 function applyKPI(root, kpi={}){
   // Rebuild tables from current Work Log first
   buildKpiTablesFromWorklog(root);
@@ -4329,37 +4967,111 @@ function applyHypercare(root, data={}){
 window.applyHypercare = applyHypercare; // expose for SitRep load
 // New Code End Abhishek For Workspace Sync
   // ---------- KPI: build tables from worklog ----------
-  function buildKpiTablesFromWorklog(root){
-    // MTTR
-    const tb1 = $('#tbl-mttr tbody', root); if(tb1){ tb1.innerHTML=''; parseWorklog(root).forEach(item=>{
-      const tr=document.createElement('tr'); tr.dataset.ts = isNaN(item.ts)?'':String(item.ts);
-      const when=isNaN(item.ts)?'—':fmtTS(item.ts);
-      tr.innerHTML = `<td>${when}</td><td>${escapeHtml(item.text||item.raw)}</td>
-                      <td style="text-align:center;"><input type="radio" name="mttrStart-${root.dataset.incidentId}"></td>
-                      <td style="text-align:center;"><input type="radio" name="mttrEnd-${root.dataset.incidentId}"></td>`;
-      tb1.appendChild(tr);
-    }); }
-    // MTE
-    const tb2 = $('#tbl-mte tbody', root); if(tb2){ tb2.innerHTML=''; parseWorklog(root).forEach(item=>{
-      const tr=document.createElement('tr'); tr.dataset.ts = isNaN(item.ts)?'':String(item.ts); const when=isNaN(item.ts)?'—':fmtTS(item.ts);
-      tr.innerHTML = `<td>${when}</td><td>${escapeHtml(item.text||item.raw)}</td>
-        <td style="text-align:center;"><input type="checkbox" class="mte-start"></td>
-        <td style="text-align:center;"><input type="checkbox" class="mte-end"></td>
-        <td><input type="text" class="mte-team" placeholder="Team name"></td>`;
-      tb2.appendChild(tr);
-    }); }
-    // MTD
-    const tb3 = $('#tbl-mtd tbody', root); if(tb3){ tb3.innerHTML=''; parseWorklog(root).forEach(item=>{
-      const tr=document.createElement('tr'); tr.dataset.ts = isNaN(item.ts)?'':String(item.ts); const when=isNaN(item.ts)?'—':fmtTS(item.ts);
-      tr.innerHTML = `<td>${when}</td><td>${escapeHtml(item.text||item.raw)}</td>
-        <td style="text-align:center;"><input type="checkbox" class="mtd-start" title="Engage End"></td>
-        <td style="text-align:center;"><input type="checkbox" class="mtd-end" title="Diagnosis End"></td>
-        <td><input type="text" class="mtd-team" placeholder="Team name"></td>`;
-      tb3.appendChild(tr);
-    }); }
+ 
+function buildKpiTablesFromWorklog(root) {
+  const ta = getWorklogTextarea(root);
+  if (!ta) return;
+
+  // ✅ 1. NORMALIZE line breaks (CRITICAL)
+  let text = ta.value
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n');
+
+  const lines = text.split('\n');
+
+  const rows = [];
+
+  // ✅ 2. Accept BOTH hyphen and em-dash (—)
+  const tsRegex = /^(\d{2}\/\d{2}\/\d{4} \d{2}:\d{2})\s*[—-]\s*(.*)$/;
+
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+
+    const match = line.match(tsRegex);
+    if (!match) {
+      i++;
+      continue;
+    }
+
+    const ts = match[1];
+    const content = match[2];
+
+    /* ===============================
+       DR Questionnaire block
+       =============================== */
+    if (content === 'DR Questionnaire') {
+      const milestone = ['DR Questionnaire'];
+      i++;
+
+      // ✅ absorb ONLY non-timestamp lines
+      while (i < lines.length && !lines[i].trim().match(tsRegex)) {
+        const t = lines[i].trim();
+        if (t) milestone.push(t);
+        i++;
+      }
+
+      rows.push({ ts, milestone });
+      continue;
+    }
+
+    /* ===============================
+       Normal KPI row
+       =============================== */
+    rows.push({
+      ts,
+      milestone: [content]
+    });
+
+    i++;
   }
 
-  window.buildKpiTablesFromWorklog = buildKpiTablesFromWorklog; // expose for SitRep load
+  /* ===============================
+     RENDERING
+     =============================== */
+  const render = (tbody, extraCols) => {
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.ts}</td>
+        <td>${escapeHtml(r.milestone.join('\n'))}</td>
+        ${extraCols}
+      `;
+      tbody.appendChild(tr);
+    });
+  };
+
+  // MTTR
+  render($('#tbl-mttr tbody', root), `
+    <td style="text-align:center;">
+      <input type="radio" name="mttrStart-${root.dataset.incidentId}">
+    </td>
+    <td style="text-align:center;">
+      <input type="radio" name="mttrEnd-${root.dataset.incidentId}">
+    </td>
+  `);
+
+  // MTE
+  render($('#tbl-mte tbody', root), `
+    <td style="text-align:center;"><input type="checkbox" class="mte-start"></td>
+    <td style="text-align:center;"><input type="checkbox" class="mte-end"></td>
+    <td><input type="text" class="mte-team"></td>
+  `);
+
+  // MTD
+  render($('#tbl-mtd tbody', root), `
+    <td style="text-align:center;"><input type="checkbox" class="mtd-start"></td>
+    <td style="text-align:center;"><input type="checkbox" class="mtd-end"></td>
+    <td><input type="text" class="mtd-team"></td>
+  `);
+}
+
+
+window.buildKpiTablesFromWorklog = buildKpiTablesFromWorklog; // expose for SitRep load
   
   function fmtTS(ts){ const d=new Date(ts); const pad=n=>String(n).padStart(2,'0'); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 
@@ -5888,6 +6600,10 @@ if (window._pillBacklog && window.tagInputs) {
         </div>
     </div>
 </div>
+
+  
+
+
 
 </body>
 
@@ -9039,4 +9755,1007 @@ window.normalizeSystemCode = normalizeSystemCode;
 })();
 
 </script>
+
+<script>
+/* ---------------- GLOBAL STATE ---------------- 
+let appData = [];
+let cbaData = [];
+let currentSituation = {};
+let recoveredSet = new Set();*/
+
+/* ---------------- TOGGLE ---------------- */
+
+
+/* ---------------- FILE LOADERS ---------------- */
+function loadJsonFile(input, callback) {
+  const file = input.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => callback(JSON.parse(e.target.result));
+  r.readAsText(file);
+}
+
+/**document.getElementById('appJsonInput').onchange = e => {
+  loadJsonFile(e.target, data => {
+    appData = data;
+    populateImpactedSites();
+  });
+};**/
+
+
+
+
+
+/* ---------------- IMPACTED SITE DROPDOWN ---------------- */
+function populateImpactedSites(root) {
+  const { appData } = root._drState;
+  const sites = new Set();
+
+  appData.forEach(a => {
+    if (!a.HostCategory) return;
+    a.HostCategory.split('+')
+      .map(s => s.trim())
+      .forEach(sites.add, sites);
+  });
+
+  const ddl = root.querySelector('#impactedSiteDropdown');
+  ddl.innerHTML = '<option value="">Select Site</option>';
+  [...sites].sort().forEach(s => {
+    ddl.innerHTML += `<option value="${s}">${s}</option>`;
+  });
+}
+
+window.populateImpactedSites = populateImpactedSites;
+//document.getElementById('impactedSiteDropdown').onchange = buildSituation;
+
+/* ---------------- BUILD SITUATION ---------------- */
+function buildSituation(root) {
+  const state = root._drState;
+  const site = root.querySelector('#impactedSiteDropdown').value;
+  if (!site) return;
+
+  const impactedApps = state.appData.filter(a =>
+    a.HostCategory?.split('+').map(x => x.trim()).includes(site)
+  );
+
+  state.currentSituation = {};
+  state.recoveredSet.clear();
+
+  impactedApps.forEach(app => {
+    let matched = false;
+
+    state.cbaData.forEach(cba => {
+      if (cba["IT Systems"]?.split(',').map(x => x.trim()).includes(app.SystemCode)) {
+        matched = true;
+        const cat = cba["CBA Category"];
+        state.currentSituation[cat] ??= new Set();
+        state.currentSituation[cat].add(app.SystemCode);
+      }
+    });
+
+    if (!matched) {
+      const cat = app.Service;
+      state.currentSituation[cat] ??= new Set();
+      state.currentSituation[cat].add(app.SystemCode);
+    }
+  });
+
+  renderSituation(root);
+}
+
+window.buildSituation = buildSituation;
+/* ---------------- RENDER SITUATION TABLE ---------------- */
+function renderSituation(root) {
+  const { currentSituation, recoveredSet } = root._drState;
+  const tbody = root.querySelector('.dr-situation-table tbody');
+  tbody.innerHTML = '';
+
+  Object.keys(currentSituation).forEach(cat => {
+    const total = currentSituation[cat].size;
+    const recovered = [...currentSituation[cat]].filter(s => recoveredSet.has(s)).length;
+    const pct = total ? Math.round((recovered / total) * 100) : 0;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${cat}</td>
+        <td>${total}</td>
+        <td>${pct}%</td>
+      </tr>`;
+  });
+}
+window.renderSituation = renderSituation;
+/* ---------------- RECOVERY ---------------- */
+
+function calculateOverallRecovery() {
+  let total = 0, rec = 0;
+  Object.values(currentSituation).forEach(set => {
+    total += set.size;
+    set.forEach(s => recoveredSet.has(s) && rec++);
+  });
+  return total ? Math.round((rec / total) * 100) : 0;
+}
+
+
+</script>
+<script>
+
+/* ---------------- SEQUENCE LOG ---------------- */
+function logEvent(text) {
+  const el = document.getElementById('sequenceOfEvents');
+  if (!el) return;
+
+  const ts = new Date().toLocaleString();
+  el.value += `\n[${ts}] ${text}`;
+}
+
+/* ---------------- DR QUESTIONNAIRE ---------------- */
+const questions = [
+  "Data Centre & Facilities",
+  "Network Services",
+  "Platform & Compute",
+  "Storage Services",
+  "Database Services",
+  "Public Cloud Connectivity"
+];
+
+const DR_QUESTIONS = [
+  {
+    id: 1,
+    title: "Any current impacts to the Data Centre site and facilities",
+    subs: [
+      "What is/are the impacted component(s) in the above area",
+      "What is/are the cause of disruption",
+      "What is/are the business impacts",
+      "What is/are the estimated time for in-place recovery"
+    ]
+  },
+  {
+    id: 2,
+    title: "Any current impacts to the Network Services",
+    subs: [
+      "What is/are the impacted component(s) in the above area",
+      "What is/are the cause of disruption",
+      "What is/are the business impacts",
+      "What is/are the estimated time for in-place recovery"
+    ]
+  },
+  {
+    id: 3,
+    title: "Any current impacts to the Platform & Compute Service",
+    subs: [
+      "What is/are the impacted component(s) in the above area",
+      "What is/are the cause of disruption",
+      "What is/are the business impacts",
+      "What is/are the estimated time for in-place recovery"
+    ]
+  },
+  {
+    id: 4,
+    title: "Any current impacts to the Storage Services",
+    subs: [
+      "What is/are the impacted component(s) in the above area",
+      "What is/are the cause of disruption",
+      "What is/are the business impacts",
+      "What is/are the estimated time for in-place recovery"
+    ]
+  },
+  {
+    id: 5,
+    title: "Any current impacts to the Database Services",
+    subs: [
+      "What is/are the impacted component(s) in the above area",
+      "What is/are the cause of disruption",
+      "What is/are the business impacts",
+      "What is/are the estimated time for in-place recovery"
+    ]
+  },
+  {
+    id: 6,
+    title: "Any current impacts to the Public Cloud Connectivity to ITOB",
+    subs: [
+      "What is/are the impacted component(s) in the above area",
+      "What is/are the cause of disruption",
+      "What is/are the business impacts",
+      "What is/are the estimated time for in-place recovery"
+    ]
+  }
+];
+function buildDrQuestionnaire(root) {
+  const body = document.getElementById('drQuestionnaireBody');
+  if (!body) return;
+
+  body.innerHTML = '';
+
+  DR_QUESTIONS.forEach(q => {
+    const block = document.createElement('div');
+    block.className = 'dr-q-block';
+    //block.dataset.question = `${q.id}. ${q.title}?`;
+    block.dataset.qid = String(q.id);
+    block.innerHTML = `
+      <div class="dr-q-title" style="font-weight:700;">
+        ${q.id}. ${q.title}?
+      </div>
+
+      <div class="dr-radio-row" style="display:flex; gap:24px; margin:6px 0;">
+        <label>
+          <input type="radio" name="drq_${q.id}" value="Yes">
+          Yes
+        </label>
+        <label>
+          <input type="radio" name="drq_${q.id}" value="No">
+          No
+        </label>
+      </div>
+
+      <div class="dr-sub" style="display:none; margin-top:10px;">
+        ${q.subs.map((s, i) =>
+          `<label style="display:block; margin-bottom:8px;">
+            ${q.id}.${i + 1} ${s}
+            <textarea rows="2" style="width:100%;"></textarea>
+          </label>`
+        ).join('')}
+      </div>
+    `;
+
+    // ✅ Toggle sub‑questions on Yes / No
+    const radios = block.querySelectorAll('input[type="radio"]');
+    const sub = block.querySelector('.dr-sub');
+
+    radios.forEach(r => {
+      r.addEventListener('change', () => {
+        sub.style.display = (r.value === 'Yes') ? 'block' : 'none';
+      });
+    });
+
+    body.appendChild(block);
+  });
+}
+window.buildDrQuestionnaire = buildDrQuestionnaire;
+function formatKpiTimestamp(d = new Date()) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ` +
+         `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+window.formatKpiTimestamp = formatKpiTimestamp;
+
+
+function saveDrQuestionnaireAnswers(root) {
+  if (!root) return;
+
+  const modal = document.getElementById('drQuestionnaireModalr');
+  if (!modal) return;
+
+  const soe =
+    root.querySelector('#decisions') ||
+    root.querySelector('#decisions_fb');
+  if (!soe) return;
+
+  function formatWorklogTimestamp(d = new Date()) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  const ts = formatWorklogTimestamp(new Date());
+  const lines = [];
+
+  modal.querySelectorAll('.dr-q-block').forEach(block => {
+    const titleEl = block.querySelector('.dr-q-title');
+    const questionText = titleEl?.textContent.trim();
+    if (!questionText) return;
+
+    const checked = block.querySelector('input[type="radio"]:checked');
+    if (!checked) return;
+
+    const yn = checked.value;
+    lines.push(`    ${questionText} — ${yn}`);
+
+    if (yn === 'Yes') {
+      block.querySelectorAll('.dr-sub label').forEach(lbl => {
+        const subQ = lbl.childNodes[0]?.textContent?.trim();
+        const ta = lbl.querySelector('textarea');
+        const val = ta?.value.trim();
+        if (subQ && val) {
+          lines.push(`        ${subQ}: ${val}`);
+        }
+      });
+    }
+  });
+
+  if (!lines.length) {
+    modal.close();
+    return;
+  }
+
+  soe.value += `\n${ts} - DR Questionnaire\n${lines.join('\n')}`;
+  soe.dispatchEvent(new Event('input', { bubbles: true }));
+  root._drAnswers = collectDrAnswers(modal);
+  modal.close();
+}
+window.saveDrQuestionnaireAnswers = saveDrQuestionnaireAnswers;
+
+
+function isDrMode(root) {
+  return !!root.querySelector('#drToggle')?.checked;
+}
+
+window.isDrMode = isDrMode;
+
+
+function buildDrCopyHtml(root) {
+  const previewRows = root.querySelectorAll('#previewTable tbody tr');
+  const drTable = root.querySelector('#drSituationContainer table');
+  if (!drTable) return '';
+
+  const rows = [];
+  const BORDER = '#dbe3f0';
+  const BLUE = '#134094';
+  const YELLOW = '#ffdd00';
+  const DARK = '#0f172a';
+
+  previewRows.forEach(tr => {
+    const th = tr.querySelector('th')?.textContent?.trim();
+    const td = tr.querySelector('td')?.innerHTML ?? '—';
+
+    // ✅ Replace Situation block
+    if (th === 'Situation') {
+      rows.push(`
+        <tr>
+          <td style="border:1px solid ${BORDER};background:${YELLOW};padding:8px;font-weight:800;color:${BLUE};">
+            Situation
+          </td>
+          <td style="border:1px solid ${BORDER};background:${YELLOW};padding:0;" colspan="3">
+            ${buildDrSituationGrid(drTable)}
+          </td>
+        </tr>
+      `);
+      return;
+    }
+
+    // ✅ Normal rows (keep untouched)
+    rows.push(`
+      <tr>
+        <td style="border:1px solid ${BORDER};background:${YELLOW};padding:6px;font-weight:800;color:${BLUE};">
+          ${th}
+        </td>
+        <td style="border:1px solid ${BORDER};background:${YELLOW};padding:6px;color:${DARK};" colspan="3">
+          ${td}
+        </td>
+      </tr>
+    `);
+  });
+
+  return `
+    <table style="width:100%;border-collapse:collapse;font-family:Calibri,Segoe UI,Arial,sans-serif;font-size:14px;">
+      ${rows.join('')}
+    </table>
+  `;
+}
+
+window.buildDrCopyHtml = buildDrCopyHtml;
+
+
+function buildDrSituationGrid(drTable) {
+  const thStyle = `
+    border:1px solid #ccc;
+    padding:6px;
+    font-weight:700;
+    color:#134094;
+    background:#eef3ff;
+    text-align:left;
+  `;
+  const tdStyle = `
+    border:1px solid #ccc;
+    padding:6px;
+    text-align:left;
+  `;
+
+  let html = `
+    <table style="width:100%;border-collapse:collapse;">
+      <tr>
+        ${[...drTable.querySelectorAll('thead th')].map(
+          th => `<td style="${thStyle}">${th.textContent}</td>`
+        ).join('')}
+      </tr>
+  `;
+
+  drTable.querySelectorAll('tbody tr').forEach(tr => {
+    html += `
+      <tr>
+        ${[...tr.children].map(
+          td => `<td style="${tdStyle}">${td.textContent}</td>`
+        ).join('')}
+      </tr>
+    `;
+  });
+
+  html += '</table>';
+  return html;
+}
+window.buildDrSituationGrid = buildDrSituationGrid;
+
+
+
+function extractDrQuestionnaireFromWorklog(root) {
+  const ta =
+    root.querySelector('#decisions') ||
+    root.querySelector('#decisions_fb');
+  if (!ta) return null;
+
+  const lines = ta.value.split('\n');
+
+  let start = -1;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (lines[i].includes('DR Questionnaire:')) {
+      start = i;
+      break;
+    }
+  }
+  if (start === -1) return null;
+
+  const data = {};
+  let currentQid = null;
+
+  for (let i = start + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    if (/^\[\d/.test(line)) break;
+
+    const main = line.match(/^\[Q(\d+)\].*—\s+(Yes|No)$/);
+    if (main) {
+      currentQid = main[1];
+      data[currentQid] = { answer: main[2], subs: {} };
+      continue;
+    }
+
+    if (currentQid && line.startsWith('•')) {
+      const cleaned = line.slice(1).trim();
+      const idx = cleaned.indexOf(':');
+      if (idx > -1) {
+        const k = cleaned.slice(0, idx).trim();
+        const v = cleaned.slice(idx + 1).trim();
+        data[currentQid].subs[k] = v;
+      }
+    }
+  }
+
+  return data;
+}
+
+window.extractDrQuestionnaireFromWorklog = extractDrQuestionnaireFromWorklog;
+
+function restoreDrQuestionnaireAnswers(root) {
+  if (!root || !root._drAnswers) return;
+
+  const modal = document.getElementById('drQuestionnaireModalr');
+  if (!modal) return;
+
+  root._drAnswers.forEach(saved => {
+    modal.querySelectorAll('.dr-q-block').forEach(block => {
+      const title = block.querySelector('.dr-q-title')?.textContent.trim();
+      if (title !== saved.question) return;
+
+      const radio = block.querySelector(
+        `input[type="radio"][value="${saved.answer}"]`
+      );
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change'));
+      }
+
+      if (saved.answer === 'Yes') {
+        block.querySelectorAll('.dr-sub label').forEach(lbl => {
+          const subQ = lbl.childNodes[0]?.textContent?.trim();
+          const ta = lbl.querySelector('textarea');
+          const found = saved.subs.find(s => s.q === subQ);
+          if (found && ta) ta.value = found.a;
+        });
+      }
+    });
+  });
+}
+
+window.restoreDrQuestionnaireAnswers = restoreDrQuestionnaireAnswers;
+
+
+function normalizeDrQuestion(s) {
+  return String(s || '')
+    .replace(/\?/g, '')     // remove ?
+    .replace(/\s+/g, ' ')   // collapse whitespace
+    .trim();
+}
+window.normalizeDrQuestion = normalizeDrQuestion;
+
+function isToday(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}
+window.isToday = isToday;
+
+
+function buildSummaryTable() {
+  const tbody = document.querySelector('#summaryTable tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+
+  /* =========================================================
+     1️⃣ Restore from summaryState IF user has edited before
+     ========================================================= */
+  if (summaryState.hasUserEdits && summaryState.rows.length) {
+    summaryState.rows.forEach(r => {
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td style="font-weight:700;color:${r.color};">${r.incident}</td>
+        <td>${r.severity || '—'}</td>
+        <td>${r.impacted || '—'}</td>
+        <td>${r.description || '—'}</td>
+        <td>
+          <textarea rows="2" style="width:100%;">${r.status || ''}</textarea>
+        </td>
+        <td>${r.reported || '—'}</td>
+        <td>
+          <input type="datetime-local" value="${r.restored || ''}" />
+        </td>
+        <td>
+          <button class="btn secondary summary-remove">Remove</button>
+        </td>
+      `;
+
+      tr.querySelector('.summary-remove').addEventListener('click', () => {
+        tr.remove();
+        if (!tbody.children.length) {
+          summaryState.hasUserEdits = false;
+          summaryState.rows = [];
+        }
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    return; // ✅ leave restore logic untouched
+  }
+
+  /* =========================================================
+     2️⃣ Build summary fresh from incidents (FIXED)
+     ========================================================= */
+  const incidentRoots = document.querySelectorAll(
+    '#workspace .incident, #parking .incident'
+  );
+
+  incidentRoots.forEach(root => {
+    const incNo =
+      root.querySelector('#incidentNumber')?.value?.trim() || '—';
+
+    const severity =
+      root.querySelector('#severity')?.value?.trim() || '—';
+
+    /* ✅ SINGLE SOURCE OF TRUTH
+       Summary → Sit‑Rep → Impacted Areas */
+    const impacted =
+      root.querySelector('#impactAreas')?.value?.trim() || '—';
+
+    const desc =
+      root.querySelector('#shortDesc')?.value?.trim() || '—';
+
+    const startTs =
+      root.querySelector('#startTs')?.value || '';
+
+    const updateCode =
+      root.querySelector('#updateCode')?.value || '';
+
+    const isDr = isDrDeclared(root);
+
+    // ✅ Correct inclusion logic
+    const includeIncident =
+      isDr || (startTs && isToday(startTs));
+
+    if (!includeIncident) return;
+
+    const isGreen = updateCode === '6.3';
+    const color = isGreen ? '#16a34a' : '#d92d20';
+
+    const reported =
+      startTs ? startTs.replace('T', ' ') : '—';
+
+    const displayIncNo = isDr ? `[DR] ${incNo}` : incNo;
+
+    const tr = document.createElement('tr');
+
+    tr.innerHTML = `
+      <td style="font-weight:700;color:${color};">${displayIncNo}</td>
+      <td>${severity}</td>
+      <td>${impacted}</td>
+      <td>${desc}</td>
+      <td>
+        <textarea rows="2" style="width:100%;"></textarea>
+      </td>
+      <td>${reported}</td>
+      <td>
+        <input type="datetime-local" />
+      </td>
+      <td>
+        <button class="btn secondary summary-remove">Remove</button>
+      </td>
+    `;
+
+    tr.querySelector('.summary-remove').addEventListener('click', () => {
+      tr.remove();
+      if (!tbody.children.length) {
+        summaryState.hasUserEdits = false;
+        summaryState.rows = [];
+      }
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+window.buildSummaryTable = buildSummaryTable;
+function addManualSummaryRow() {
+  const tbody = document.querySelector('#summaryTable tbody');
+
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>
+      <input type="text" placeholder="Incident #" style="width:100%;" />
+      <select>
+        <option value="red">🔴 Open</option>
+        <option value="green">🟢 Resolved</option>
+      </select>
+    </td>
+    <td><input type="text" placeholder="S1/S2/S3" /></td>
+    <td><input type="text" /></td>
+    <td><input type="text" /></td>
+    <td><textarea rows="2"></textarea></td>
+    <td><input type="datetime-local" /></td>
+    <td><input type="datetime-local" /></td>
+    <td>
+      <button class="btn secondary summary-remove">Remove</button>
+    </td>
+  `;
+
+  const sel = tr.querySelector('select');
+  const incInput = tr.querySelector('input[type="text"]');
+
+  sel.addEventListener('change', () => {
+    incInput.style.color =
+      sel.value === 'green' ? '#16a34a' : '#d92d20';
+    incInput.style.fontWeight = '700';
+  });
+
+  tr.querySelector('.summary-remove')
+    .addEventListener('click', () => {
+        
+        tr.remove();
+    
+        const tbody = document.querySelector('#summaryTable tbody');
+    if (!tbody.children.length) {
+      summaryState.hasUserEdits = false; // ✅ allow rebuild
+      summaryState.rows = [];
+    }
+
+    
+    }
+
+
+);
+
+  tbody.appendChild(tr);
+}
+
+window.addManualSummaryRow = addManualSummaryRow;
+
+
+function copySummaryToTeams() {
+  const table = document.getElementById('summaryTable');
+  if (!table) return;
+
+  const thStyle =
+    'background:#eef3ff;color:#134094;font-weight:700;' +
+    'border:1px solid #ccc;padding:6px;text-align:left;';
+  const tdStyle =
+    'border:1px solid #ccc;padding:6px;text-align:left;';
+
+  let html = `
+    <table style="
+      width:100%;
+      border-collapse:collapse;
+      font-family:Calibri,Segoe UI,Arial,sans-serif;
+      font-size:14px;">
+      <thead>
+        <tr>
+  `;
+
+  // ✅ Headers (exclude Action column)
+  [...table.tHead.rows[0].cells].slice(0, -1).forEach(th => {
+    html += `<th style="${thStyle}">${th.textContent.trim()}</th>`;
+  });
+
+  html += `
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  // ✅ Rows
+  [...table.tBodies[0].rows].forEach(tr => {
+    html += `<tr>`;
+
+    [...tr.cells].slice(0, -1).forEach((td, idx) => {
+      let value = '';
+
+      const input = td.querySelector('input');
+      const textarea = td.querySelector('textarea');
+
+      if (input) {
+        value = input.value || '';
+      } else if (textarea) {
+        value = textarea.value || '';
+      } else {
+        value = td.textContent.trim();
+      }
+
+      // ✅ Incident Number column (first column): preserve red/green
+      if (idx === 0) {
+        const computed = window.getComputedStyle(td);
+        const color = computed.color || '#000';
+
+        html += `<td style="${tdStyle}color:${color};font-weight:700;">
+          ${value || '—'}
+        </td>`;
+      } else {
+        html += `<td style="${tdStyle}">
+          ${value || '—'}
+        </td>`;
+      }
+    });
+
+    html += `</tr>`;
+  });
+
+  html += `
+      </tbody>
+    </table>
+  `;
+
+  // ✅ Text fallback (Teams plain‑text)
+  const text = [...table.tBodies[0].rows]
+    .map(tr =>
+      [...tr.cells]
+        .slice(0, -1)
+        .map(td => {
+          const input = td.querySelector('input');
+          const textarea = td.querySelector('textarea');
+          return (
+            input?.value ||
+            textarea?.value ||
+            td.textContent.trim() ||
+            '—'
+          );
+        })
+        .join(' | ')
+    )
+    .join('\n');
+
+  // ✅ Use the rich copy helper used elsewhere
+  copyRich(html, text);
+}
+
+window.copySummaryToTeams = copySummaryToTeams;
+
+
+
+  
+document.getElementById('btnSummary')?.addEventListener('click', () => {
+  buildSummaryTable();
+
+  const dlg = document.getElementById('summaryModal');
+  if (!dlg) return;
+
+  // ✅ wire buttons AFTER modal is present
+  dlg.querySelector('#summaryAddRow').onclick = addManualSummaryRow;
+  dlg.querySelector('#summaryCopyTeams').onclick = copySummaryToTeams;
+  dlg.querySelector('#summaryClose').onclick = () => 
+  {
+    saveSummaryState();    
+    dlg.close();
+  }
+  dlg.querySelector('#summaryExportExcel').onclick = exportSummaryToExcel;
+  dlg.showModal();
+});
+
+
+
+
+const summaryState = {
+  rows: [],
+  hasUserEdits: false
+};
+
+
+function saveSummaryState() {
+  const table = document.getElementById('summaryTable');
+  if (!table) return;
+
+  summaryState.rows = [...table.tBodies[0].rows].map(tr => {
+    const cells = [...tr.cells];
+
+    return {
+      incident: cells[0].textContent.trim(),
+      severity: cells[1].textContent.trim(),
+      impacted: cells[2].textContent.trim(),
+      description: cells[3].textContent.trim(),
+      status: cells[4].querySelector('textarea')?.value || '',
+      reported: cells[5].textContent.trim(),
+      restored: cells[6].querySelector('input')?.value || '',
+      color: cells[0].style.color || ''
+    };
+  });
+
+  summaryState.hasUserEdits = true; // ✅ key fix
+}
+
+window.saveSummaryState = saveSummaryState;
+
+
+function isDrDeclared(root) {
+  return !!root.querySelector('#drToggle')?.checked;
+}
+window.isDrDeclared = isDrDeclared;
+
+function exportSummaryToExcel() {
+  const table = document.getElementById('summaryTable');
+  if (!table) return;
+
+  const rows = [];
+
+  // ✅ Header row (exclude Action column)
+  const headers = [...table.tHead.rows[0].cells]
+    .slice(0, -1)
+    .map(th => th.textContent.trim());
+
+  rows.push(headers);
+
+  // ✅ Data rows
+  [...table.tBodies[0].rows].forEach(tr => {
+    const row = [...tr.cells]
+      .slice(0, -1) // exclude Action
+      .map(td => {
+        const input = td.querySelector('input');
+        const textarea = td.querySelector('textarea');
+
+        return input?.value ||
+               textarea?.value ||
+               td.textContent.trim() ||
+               '';
+      });
+
+    rows.push(row);
+  });
+
+  // ✅ Convert to CSV
+  const csv = rows
+    .map(r =>
+      r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+    )
+    .join('\n');
+
+  // ✅ Download as .csv (Excel-friendly)
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download =
+    `Daily_Incident_Summary_${new Date().toISOString().slice(0, 10)}.csv`;
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+}
+
+window.exportSummaryToExcel = exportSummaryToExcel; 
+
+
+// =======================================================
+// Standalone-safe guard for popup usage (file:// mode)
+// =======================================================
+(function () {
+  if (location.protocol === 'file:') {
+    const originalOpen = window.open;
+
+    window.open = function () {
+      console.warn(
+        '[Standalone Mode] window.open suppressed to avoid file:// security violation'
+      );
+      return null;
+    };
+
+    console.info(
+      '[Standalone Mode Enabled] Popups disabled (file:// execution)'
+    );
+  }
+})();
+
+function openDrQuestionnaire(root) {
+    //alert('Opening DR Questionnaire. Please answer the questions to capture current impacts and recovery estimates.');
+  const dlg = document.getElementById('drQuestionnaireModalr');
+  if (!dlg) return;
+
+  buildDrQuestionnaire(root);
+  restoreDrQuestionnaireAnswers(root);
+
+  const btnSave = dlg.querySelector('#drQSave');
+  const btnCancel = dlg.querySelector('#drQCancel');
+
+  // ✅ REMOVE old handlers (critical)
+  btnSave.replaceWith(btnSave.cloneNode(true));
+  btnCancel.replaceWith(btnCancel.cloneNode(true));
+
+  const newSave = dlg.querySelector('#drQSave');
+  const newCancel = dlg.querySelector('#drQCancel');
+
+  // ✅ Bind fresh handlers scoped to THIS incident
+  newSave.addEventListener('click', () => {
+    saveDrQuestionnaireAnswers(root);
+    dlg.close();
+  });
+
+  newCancel.addEventListener('click', () => {
+    dlg.close();
+  });
+
+  dlg.showModal();
+}
+
+window.openDrQuestionnaire = openDrQuestionnaire; // expose for dynamic calls  
+
+
+
+function collectDrAnswers(modal) {
+  const data = [];
+
+  modal.querySelectorAll('.dr-q-block').forEach(block => {
+    const title = block.querySelector('.dr-q-title')?.textContent.trim();
+    if (!title) return;
+
+    const checked = block.querySelector('input[type="radio"]:checked');
+    if (!checked) return;
+
+    const entry = {
+      question: title,
+      answer: checked.value,
+      subs: []
+    };
+
+    if (checked.value === 'Yes') {
+      block.querySelectorAll('.dr-sub label').forEach(lbl => {
+        const subQ = lbl.childNodes[0]?.textContent?.trim();
+        const ta = lbl.querySelector('textarea');
+        if (subQ && ta?.value.trim()) {
+          entry.subs.push({ q: subQ, a: ta.value.trim() });
+        }
+      });
+    }
+    data.push(entry);
+  });
+
+  return data;
+}
+window.collectDrAnswers = collectDrAnswers;
+
+
+</script>
+
+
+
 </html>
