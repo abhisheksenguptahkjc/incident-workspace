@@ -1086,9 +1086,9 @@ dialog#workLogDialog,
     <li role="none">
       <button id="wbActReminder" role="menuitem" class="wb-item">Backup Reminder</button>
     </li>
-    <li role="none">
+    <!--<li role="none">
        <button id="changecalendar" role="menuitem" class="wb-item" onclick="openPowerBiModal()">Change Calendar</button> 
-    </li>
+    </li>-->
     <li role="none">
   <button
     id="wbActCbaCalendar"
@@ -1366,16 +1366,9 @@ dialog#workLogDialog,
         <div class="dr-input-row">
 
   <div class="dr-input-group">
-    <label for="appJsonInput">Application JSON</label>
+    <label for="appJsonInput">Application-CBA JSON</label>
     <input type="file" id="appJsonInput" accept=".json">
-  </div>
-
-  <div class="dr-input-group">
-    <label for="cbaJsonInput">CBA JSON</label>
-    <input type="file" id="cbaJsonInput" accept=".json">
-  </div>
-
-  <div class="dr-input-group dr-input-wide">
+  
     <label for="impactedSiteDropdown">Impacted Site</label>
     <select id="impactedSiteDropdown">
       <option value="">Select Site</option>
@@ -1520,9 +1513,26 @@ dialog#workLogDialog,
         <div><label for="imtSupport">IMT Support</label><input id="imtSupport" type="text"/></div>
       </div>
 
-     <label for="situation">
-  Situation <span class="badge">Required</span>
+     <label for="situation">Situation <span class="badge">Required</span>
+    
+    
+<!-- DR ONLY: Copy Recovery Progress -->
+  <button
+    type="button"
+    id="copyDrRecoveryBtn"
+    class="btn secondary"
+    style="display:none;"
+    title="Copy Recovery Progress (DR)"
+  >
+    Copy
+  </button>
+
+<input type="checkbox" id="includeDrInSitrepChk" style ="display: none;" checked />
+    <span id="includeDrInSitrepLabel">Include In Sit‑Rep</span> 
+
+
 </label>
+</div>
 
 <!-- Normal Sit‑Rep Situation -->
 <textarea id="situation"
@@ -1535,7 +1545,7 @@ dialog#workLogDialog,
   <table class="dr-situation-table" width="100%">
     <thead>
       <tr>
-        <th>CBA Category</th>
+        <th>Impacted Service</th>
         <th>Total Applications Impacted</th>
         <th>% Recovered</th>
       </tr>
@@ -1593,19 +1603,7 @@ dialog#workLogDialog,
       <div class="actions" style="margin-top:8px;">
         <button id="copyPreview" class="btn warn">Copy Preview for Teams</button>
 
-        
-<!--<button id="copyPreview"
-        class="btn icon-pill"
-        title="Copy Preview for Teams"
-        aria-label="Copy Preview for Teams">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <rect width="24" height="24" rx="6" fill="#eef3ff"/>
-    <path d="M7 7h8a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H10l-3 3v-3H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"
-          fill="#1850b5" opacity="0.85"/>
-    <rect x="11" y="9" width="5" height="6" rx="1"
-          fill="#1850b5"/>
-  </svg>
-</button>-->
+
         <span class="hint">Copies the table only (excludes headline)</span>
       </div>
     </section>
@@ -2146,6 +2144,8 @@ dialog#workLogDialog,
     </div>
 
     <div class="modal-soe-footer">
+      
+      <button type="button" id="drQuestionnaireCopy" class="btn secondary"> Copy</button>
       <button class="btn secondary" id="drQCancel">Cancel</button>
       <button class="btn" id="drQSave">Save</button>
     </div>
@@ -2201,7 +2201,7 @@ dialog#workLogDialog,
       </table>
 
       <div style="margin-top:10px; display:flex; gap:8px;">
-        <button id="summaryAddRow" class="btn secondary">+ Add Row</button>
+        <button id="summaryAddRow" class="btn secondary">+ Add Incident</button>
         <button id="summaryCopyTeams" class="btn">Copy to Teams</button>
         <button id="summaryExportExcel" class="btn secondary">Export to Excel</button>
 
@@ -2210,7 +2210,7 @@ dialog#workLogDialog,
 
     <footer>
         
-      <button class="btn secondary" id="summaryClose">Close</button>
+      <button class="btn secondary" id="summaryClose">Save & Close</button>
       
     </footer>
   </div>
@@ -2780,20 +2780,26 @@ function handleDrToggle(root, isOn) {
   const situationTA = root.querySelector('#situation');
   const drSituation = root.querySelector('#drSituationContainer');
   const drContainer = root.querySelector('#drContainer');
-
-  // Safety: exit if expected elements are missing
-  if (!situationTA || !drSituation || !drContainer) return;
+  const copyBtn = root.querySelector('#copyDrRecoveryBtn');
+  const includeWrap = root.querySelector('#includeDrInSitrepChk');
+  const includeDrInSitrepLabel = root.querySelector('#includeDrInSitrepLabel');
 
   if (isOn) {
-    // DR ON
     situationTA.style.display = 'none';
     drSituation.style.display = 'block';
     drContainer.style.display = 'block';
+    includeWrap.style.display = 'inline-flex'; // show the include in sitrep option when DR is on
+    includeDrInSitrepLabel.style.display = 'inline'; // ensure label is visible
+    if (copyBtn) copyBtn.style.display = 'inline-flex';
+    if (includeWrap) includeWrap.style.display = 'inline-flex';
   } else {
-    // DR OFF
     situationTA.style.display = 'block';
     drSituation.style.display = 'none';
     drContainer.style.display = 'none';
+
+    if (copyBtn) copyBtn.style.display = 'none';
+    if (includeWrap) includeWrap.style.display = 'none';
+    if (includeDrInSitrepLabel) includeDrInSitrepLabel.style.display = 'none';
   }
 }
 
@@ -2818,11 +2824,6 @@ root.querySelector('#appJsonInput').onchange = e => {
   });
 };
 
-root.querySelector('#cbaJsonInput').onchange = e => {
-  loadJsonFile(e.target, data => {
-    root._drState.cbaData = data.Sheet1 || data;
-  });
-};
 
 root.querySelector('#impactedSiteDropdown').onchange = () => buildSituation(root);
 
@@ -2836,17 +2837,52 @@ root.querySelector('#refreshSituationBtn').onclick = () => {
   apps.forEach(a => state.recoveredSet.add(a));
   renderSituation(root);
 };
-
+const copyBtn = root.querySelector('#copyDrRecoveryBtn');
+if (copyBtn) {
+  copyBtn.onclick = () => copyDrRecoveryProgress(root);
+}
 
 if (drToggle) {
   drToggle.addEventListener('change', e => {
     handleDrToggle(root, e.target.checked);
   });
+// ✅ Per‑incident state storage
+if (!root._drState) root._drState = {};
+if (root._drState.includeInSitrep === undefined) {
+  root._drState.includeInSitrep = true;
+}
 
+const chk = root.querySelector('#includeDrInSitrepChk');
+if (chk) {
+  chk.checked = root._drState.includeInSitrep;
+
+  chk.addEventListener('change', () => {
+    root._drState.includeInSitrep = chk.checked;
+  });
+}
   // Ensure correct initial state
   handleDrToggle(root, drToggle.checked);
 }
 
+root.querySelector('#drQuestionnaireCopy')?.addEventListener('click', () => {
+  // ✅ Validation FIRST
+  if (!hasAnsweredDrQuestionnaire()) {
+    alert('Please answer at least one question before copying.');
+    return;
+  }
+
+  const text = buildDrQuestionnaireCopy();
+
+  if (!text.trim()) {
+    alert('Please answer at least one question before copying.');
+    return;
+  }
+
+  // ✅ Copy (plain text is best for questionnaire)
+  copyPlainTextForQuestionnaire(text);
+
+  alert('DR Questionnaire copied.');
+});
 
 
 const btn = root.querySelector('#drQuestionnaireBtn');
@@ -3721,106 +3757,113 @@ function safeHtml(s) {
     .replace(/>/g, '&gt;');
 }
 
-  function renderPreview(root){
-  // Get a control's current value safely
+function renderPreview(root) {
+  // ----------------------------
+  // Helpers
+  // ----------------------------
   const get = (id) => {
     const el = root.querySelector('#' + id);
     return el ? (el.value ?? '') : '';
   };
 
-  // Set a cell's textContent (default path)
   const setText = (cellId, v) => {
     const td = root.querySelector('#' + cellId);
     if (td) td.textContent = (v ?? '') || '—';
   };
 
-  // Set a cell's innerHTML (used only where we need HTML like <br>)
   const setHtml = (cellId, html) => {
     const td = root.querySelector('#' + cellId);
     if (td) td.innerHTML = (html ?? '') || '—';
   };
 
-  // ===== Compose Sit‑Rep preview table =====
-const sev  = get('severity')     ?? '—';
-const inc  = get('incidentNumber') ?? '—';
-const head = get('shortDesc')    ?? '—';
-const u    = get('updateCode')   ?? '';
-const line = `${sev} — ${inc} — ${safeHtml(head)}`;
+  // ----------------------------
+  // Incident headline
+  // ----------------------------
+  const sev  = get('severity') ?? '—';
+  const inc  = get('incidentNumber') ?? '—';
+  const head = get('shortDesc') ?? '—';
+  const u    = get('updateCode') ?? '';
 
-// When Update Code is 6.3, make Incident Number & Heading green for Teams copy
-/**if (u === '6.3') {
-  // Use innerHTML so we can inject a span with inline color (Teams-friendly)
-  setHtml('pv_incident', `<span style="color:#2e8b57;">${escapeHtml(`${sev} — ${inc} — ${head}`)}</span>`);
-} else {
-  // Default (black text)
-  setText('pv_incident', `${sev} — ${inc} — ${head}`);
-}**/
+  const line = `${sev} — ${inc} — ${safeHtml(head)}`;
+  const incidentColor = (u === '6.3') ? '#16a34a' : '#d92d20';
 
-const incidentColor = (u === '6.3') ? '#16a34a' : '#d92d20';
+  setHtml(
+    'pv_incident',
+    `<span style="color:${incidentColor}; font-weight:700;">${line}</span>`
+  );
 
-// Always write HTML so Teams copy keeps color
-setHtml(
-  'pv_incident',
-  `<span style="color:${incidentColor}; font-weight:700;">${line}</span>`
-);
-
-
-  // Update status label (use the SELECT's visible text)
+  // ----------------------------
+  // Update status text
+  // ----------------------------
   const sel = root.querySelector('#updateCode');
   const updateLabel = sel ? (sel.selectedOptions[0]?.text ?? '—') : '—';
   setText('pv_update', updateLabel);
 
-  // Timestamp, leaders, situation, enquiries, impact, IMT notes
+  // ----------------------------
+  // Time / leaders
+  // ----------------------------
   setText('pv_time', (get('startTs') || '').replace('T', ' ') || '—');
   setText('pv_lead', get('imtLead'));
   setText('pv_support', get('imtSupport'));
-  //setText('pv_situation', get('situation'));
-  setHtml('pv_situation', nl2brNew(get('situation')));   
+
+  // =========================================================
+  // ✅ Situation (DR‑aware, NON‑DESTRUCTIVE)
+  // =========================================================
+  const isDr = root.querySelector('#drToggle')?.checked;
+  const includeInSitrep =
+    !isDr || root._drState?.includeInSitrep === true;
+
+  const situationCell = root.querySelector('#pv_situation');
+  const situationRow  = situationCell?.closest('tr');
+
+  if (includeInSitrep) {
+    // ✅ Restore + show normally
+    if (situationRow) situationRow.style.display = '';
+    setHtml('pv_situation', nl2brNew(get('situation')));
+  } else {
+    // ✅ Hide visually AND clear text (for Teams copy)
+    if (situationRow) situationRow.style.display = 'none';
+    setText('pv_situation', '—');
+  }
+
+  // ----------------------------
+  // Customer / Media / Impact
+  // ----------------------------
   setText('pv_cust', get('custEnq'));
   setText('pv_media', get('mediaEnq'));
   setText('pv_impact', get('impactAreas'));
   setText('pv_imt', get('keyIMT'));
 
-  // ===== Decisions & Workstreams (fix: preserve per‑line entries) =====
-  // Take the raw multi‑line text and convert '\n' to <br> so paste keeps lines.
-  // const decisionsRaw = (get('decisions') ?? '').trim();
-  // if (decisionsRaw) {
-  //   // Escape HTML once, then convert newlines to <br>
-  //   const safe = decisionsRaw
-  //     .replace(/[&<>]/g, c => ({'&':'&','<':'<','>':'>'}[c])) // escapeHtml
-  //     .replace(/\r?\n/g, '<br>');
-  //   setHtml('pv_decisions', safe);
-  // } else {
-  //   setText('pv_decisions', '—');
-  // }
+  // ----------------------------
+  // Decisions / Worklog
+  // ----------------------------
+  const decisionsRaw = (get('decisions') ?? '').trim();
 
-const decisionsRaw = (get('decisions') ?? '').trim();
+  if (decisionsRaw) {
+    const sorted = normalizeAndSortWorklog(decisionsRaw);
 
-if (decisionsRaw) {
-  const sorted = normalizeAndSortWorklog(decisionsRaw);
+    const escaped = sorted.replace(/[&<>]/g, c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;'
+    }[c]));
 
-  // Safe HTML escape + bulletproof newline conversion (NO REGEX)
-  const escaped = sorted.replace(/[&<>]/g, c => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;'
-  }[c]));
+    const safe = escaped
+      .split('\r').join('')
+      .split('\n').join('<br>');
 
-  // newline handling without regex (prevents broken literal errors)
-  const safe = escaped
-    .split(String.fromCharCode(13)).join('')        // remove \r
-    .split(String.fromCharCode(10)).join('<br>');   // convert \n → <br>
+    setHtml('pv_decisions', safe);
+  } else {
+    setText('pv_decisions', '—');
+  }
 
-  setHtml('pv_decisions', safe);
-
-} else {
-  setText('pv_decisions', '—');
-}
-
-  // Next update and MTTR
+  // ----------------------------
+  // Next update / MTTR
+  // ----------------------------
   setText('pv_next', (get('nextUpdate') || '').replace('T', ' ') || '—');
   setText('pv_mttr', get('mttr'));
 }
+
 function normalizeAndSortWorklog(text) {
   const TS_RX = new RegExp(
     '^(\\d{2})\\/(\\d{2})\\/(\\d{4})\\s+(\\d{2})\\:(\\d{2})\\s*[\\-\\u2013\\u2014]?\\s*(.*)$'
@@ -3938,36 +3981,79 @@ function sortWorklogInPlace(root) {
   }
  
 window.copyRich = copyRich; 
-  function tablePreviewToText(root) {
-  const drOn = root.querySelector('#drToggle')?.checked;
-
-  return $$('#previewTable tr', root).map(tr => {
-    const th = tr.querySelector('th')?.textContent.trim() || '';
-    const tdEl = tr.querySelector('td');
-
-    // ✅ In DR mode, SKIP Situation from text/plain
-    if (drOn && th === 'Situation') {
-      return null;
-    }
-
-    const tdText = tdEl?.textContent.trim() || '';
-    return `${th}: ${tdText}`;
-  })
-  .filter(Boolean)
-  .join('\n');
+function tablePreviewToText(root) {
+  const isDr = root.querySelector('#drToggle')?.checked;
+  const includeSit =
+    !isDr || root._drState?.includeInSitrep === true;
+  console.log('Preview to Text: isDr=', isDr, 'includeSit=', includeSit);
+  return $$('#previewTable tr', root)
+    .filter(tr => {
+      const th = tr.querySelector('th')?.textContent.trim() || '';
+      if (isDr && !includeSit && th === 'Situation') return false;
+      if (tr.style.display === 'none') return false;
+      return true;
+    })
+    .map(tr => {
+      const th = tr.querySelector('th')?.textContent.trim() || '';
+      const tdText = tr.querySelector('td')?.textContent.trim() || '';
+      return `${th}: ${tdText}`;
+    })
+    .join('\n');
 }
-  function previewYellowHtml(root){
-    const BORDER='#dbe3f0', BLUE='#134094', YELLOW='#ffdd00', DARK='#0f172a';
-    const rows = $$('#previewTable tr', root).map(tr=>{
-      const th=tr.querySelector('th')?.textContent.trim()||''; const tdHtml=tr.querySelector('td')?.innerHTML||'';
-      const left  = `<div style="display:block;background-color:${YELLOW};padding:6px 8px;"><span style="color:${BLUE};font-weight:800;">${escapeHtml(th)}</span></div>`;
-      const right = `<div style="display:block;background-color:${YELLOW};padding:6px 8px;color:${DARK};">${tdHtml}</div>`;
-      return `<tr><td bgcolor="${YELLOW}" style="background-color:${YELLOW};border:1px solid ${BORDER};width:260px;vertical-align:top;padding:0;">${left}</td>
-                  <td bgcolor="${YELLOW}" style="background-color:${YELLOW};border:1px solid ${BORDER};vertical-align:top;padding:0;">${right}</td></tr>`;
-    }).join('');
-    return `<table style="width:100%;border-collapse:collapse;">${rows}</table>`;
-  }
+function previewYellowHtml(root) {
+  const BORDER = '#dbe3f0',
+        BLUE   = '#134094',
+        YELLOW = '#ffdd00',
+        DARK   = '#0f172a';
 
+  const isDr = root.querySelector('#drToggle')?.checked;
+  const includeSit =
+    !isDr || root._drState?.includeInSitrep === true;
+  console.log('Preview render: isDr=', isDr, 'includeSit=', includeSit);
+  const rows = $$('#previewTable tr', root)
+    .filter(tr => {
+      const th = tr.querySelector('th')?.textContent.trim() || '';
+      // ✅ HARD RULE: exclude Situation when checkbox unchecked
+      if (isDr && !includeSit && th === 'Situation') return false;
+      // Also respect any hidden rows
+      if (tr.style.display === 'none') return false;
+      return true;
+    })
+    .map(tr => {
+      const th = tr.querySelector('th')?.textContent.trim() || '';
+      const tdHtml = tr.querySelector('td')?.innerHTML || '—';
+
+      const left = `
+        <div style="background:${YELLOW};padding:6px 8px;">
+          <span style="color:${BLUE};font-weight:800;">
+            ${escapeHtml(th)}
+          </span>
+        </div>`;
+
+      const right = `
+        <div style="background:${YELLOW};padding:6px 8px;color:${DARK};">
+          ${tdHtml}
+        </div>`;
+
+      return `
+        <tr>
+          <td style="border:1px solid ${BORDER};width:260px;padding:0;">
+            ${left}
+          </td>
+          <td style="border:1px solid ${BORDER};padding:0;">
+            ${right}
+          </td>
+        </tr>`;
+    })
+    .join('');
+
+  return `
+    <table style="width:100%;border-collapse:collapse;">
+      ${rows}
+    </table>`;
+}
+ 
+ 
   // ---------- Sit-Rep JSON helpers ----------
   function downloadSitRep(root){
     const gv = id => ($('#'+id, root)?.value || '');
@@ -8230,7 +8316,7 @@ window.downloadPMasPptxExact = downloadPMasPptxExact;
   const btnOpen = document.getElementById('powerBiOpenBtn');
   const btnCancel = document.getElementById('powerBiCancel');
 
-  function openCenteredPopup(url) {
+  /**function openCenteredPopup(url) {
     const width = Math.min(1400, window.screen.width - 100);
     const height = Math.min(900, window.screen.height - 100);
 
@@ -8265,16 +8351,16 @@ window.downloadPMasPptxExact = downloadPMasPptxExact;
 
   btnCancel?.addEventListener('click', () => {
     try { dlg.close(); } catch {}
-  });
+  });**/
 
   // Expose global opener for menu
-  window.openPowerBiModal = function () {
+ /**window.openPowerBiModal = function () {
     try {
       dlg.showModal();
     } catch {
       dlg.setAttribute('open', '');
     }
-  };
+  };**/
 })();
 </script>
 
@@ -8968,19 +9054,19 @@ function excelFileToJson(file, callback) {
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
-    // ✅ Convert sheet to row objects using headers
+    // ✅ Convert sheet to row objects (matches CBA_Sheet1.json)
     const rows = XLSX.utils.sheet_to_json(worksheet, {
       defval: "",
-      raw: false    // IMPORTANT: converts Excel times into strings
+      raw: false
     });
 
-    callback({
-      Sheet1: rows
-    });
+    // ✅ CRITICAL: return array, not wrapped object
+    callback(rows);
   };
 
   reader.readAsArrayBuffer(file);
 }
+
 </script>
 <script>
 /* ===============================
@@ -9757,14 +9843,6 @@ window.normalizeSystemCode = normalizeSystemCode;
 </script>
 
 <script>
-/* ---------------- GLOBAL STATE ---------------- 
-let appData = [];
-let cbaData = [];
-let currentSituation = {};
-let recoveredSet = new Set();*/
-
-/* ---------------- TOGGLE ---------------- */
-
 
 /* ---------------- FILE LOADERS ---------------- */
 function loadJsonFile(input, callback) {
@@ -9775,34 +9853,62 @@ function loadJsonFile(input, callback) {
   r.readAsText(file);
 }
 
-/**document.getElementById('appJsonInput').onchange = e => {
-  loadJsonFile(e.target, data => {
-    appData = data;
-    populateImpactedSites();
-  });
-};**/
-
 
 
 
 
 /* ---------------- IMPACTED SITE DROPDOWN ---------------- */
 function populateImpactedSites(root) {
-  const { appData } = root._drState;
+  const appData = root._drState?.appData;
+  if (!Array.isArray(appData)) return;
+
+  // ✅ Canonical DR site values (what the dropdown should show)
+  const SITE_PATTERNS = [
+    'ITOB-A',
+    'ITOB-B',
+    'CRC',
+    'CTC',
+    'ITSZ',
+    'TSW',
+    'Azure',
+    'AWS',
+    'Public Cloud',
+    'Tencent',
+    'SAAS',
+    'Tokyo',
+    'Singapore',
+    'Osaka',
+    'Sydney',
+    'Other Location'
+  ];
+
   const sites = new Set();
 
-  appData.forEach(a => {
-    if (!a.HostCategory) return;
-    a.HostCategory.split('+')
-      .map(s => s.trim())
-      .forEach(sites.add, sites);
+  appData.forEach(row => {
+    const raw = row['Host Category'];
+    if (!raw) return;
+
+    // ✅ Normalize the ugly input
+    const normalized = raw
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    SITE_PATTERNS.forEach(site => {
+      if (normalized.includes(site)) {
+        sites.add(site);
+      }
+    });
   });
 
   const ddl = root.querySelector('#impactedSiteDropdown');
   ddl.innerHTML = '<option value="">Select Site</option>';
-  [...sites].sort().forEach(s => {
-    ddl.innerHTML += `<option value="${s}">${s}</option>`;
-  });
+
+  [...sites]
+    .sort()
+    .forEach(site => {
+      ddl.innerHTML += `<option value="${site}">${site}</option>`;
+    });
 }
 
 window.populateImpactedSites = populateImpactedSites;
@@ -9814,55 +9920,132 @@ function buildSituation(root) {
   const site = root.querySelector('#impactedSiteDropdown').value;
   if (!site) return;
 
-  const impactedApps = state.appData.filter(a =>
-    a.HostCategory?.split('+').map(x => x.trim()).includes(site)
-  );
+  const appData = state.appData;
+  if (!Array.isArray(appData)) return;
 
+  // ✅ Reset situation state
   state.currentSituation = {};
   state.recoveredSet.clear();
 
+  // ✅ Step 1: find applications hosted on selected site
+  const impactedApps = appData.filter(app => {
+    const host = app['Host Category'];
+    if (!host) return false;
+
+    const normalized = host
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return normalized.includes(site);
+  });
+
+  // ✅ Step 2: build Service Category → Application mapping
   impactedApps.forEach(app => {
-    let matched = false;
+    const systemCode = app['System Code'];
+    if (!systemCode) return;
 
-    state.cbaData.forEach(cba => {
-      if (cba["IT Systems"]?.split(',').map(x => x.trim()).includes(app.SystemCode)) {
-        matched = true;
-        const cat = cba["CBA Category"];
-        state.currentSituation[cat] ??= new Set();
-        state.currentSituation[cat].add(app.SystemCode);
-      }
-    });
+    const serviceRaw = app['Service Category'];
+    if (!serviceRaw) return;
 
-    if (!matched) {
-      const cat = app.Service;
-      state.currentSituation[cat] ??= new Set();
-      state.currentSituation[cat].add(app.SystemCode);
-    }
+    // ✅ Handle multiple service categories per app
+    serviceRaw
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .forEach(serviceCategory => {
+        state.currentSituation[serviceCategory] ??= new Set();
+        state.currentSituation[serviceCategory].add(systemCode);
+      });
   });
 
   renderSituation(root);
 }
-
 window.buildSituation = buildSituation;
 /* ---------------- RENDER SITUATION TABLE ---------------- */
 function renderSituation(root) {
-  const { currentSituation, recoveredSet } = root._drState;
+  const state = root._drState;
+  const { currentSituation, recoveredSet } = state;
+
+  // ✅ Track which services have already logged 100%
+  if (!state.fullyRecoveredLogged) {
+    state.fullyRecoveredLogged = new Set();
+  }
+
   const tbody = root.querySelector('.dr-situation-table tbody');
   tbody.innerHTML = '';
 
-  Object.keys(currentSituation).forEach(cat => {
-    const total = currentSituation[cat].size;
-    const recovered = [...currentSituation[cat]].filter(s => recoveredSet.has(s)).length;
-    const pct = total ? Math.round((recovered / total) * 100) : 0;
+  /* =========================================================
+     1️⃣ Rebuild recoveredSet from textarea
+     ========================================================= */
+  recoveredSet.clear();
 
-    tbody.innerHTML += `
-      <tr>
-        <td>${cat}</td>
-        <td>${total}</td>
-        <td>${pct}%</td>
-      </tr>`;
-  });
+  const recoveredInput =
+    root.querySelector('#recoveredApps')?.value || '';
+
+  recoveredInput
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean)
+    .forEach(code => recoveredSet.add(code));
+
+  /* =========================================================
+     2️⃣ Render situation rows + detect 100% recovery
+     ========================================================= */
+  Object.keys(currentSituation)
+    .sort()
+    .forEach(cat => {
+      const apps = currentSituation[cat];
+      const total = apps.size;
+
+      const recovered = [...apps].filter(app =>
+        recoveredSet.has(app)
+      ).length;
+
+      const pct = total
+        ? Math.round((recovered / total) * 100)
+        : 0;
+
+      /* ✅ New display format */
+      const pctDisplay = `${pct}% (${recovered} out of ${total} recovered)`;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${cat}</td>
+          <td>${total}</td>
+          <td>${pctDisplay}</td>
+        </tr>
+      `;
+
+      /* =====================================================
+         3️⃣ Log 100% recovery to Sequence of Events (once)
+         ===================================================== */
+      if (pct === 100 && total > 0 && !state.fullyRecoveredLogged.has(cat)) {
+        state.fullyRecoveredLogged.add(cat);
+
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const stamp =
+          `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ` +
+          `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+        const logLine = `${stamp} — ${cat} 100% recovered`;
+
+        const worklog =
+          root.querySelector('#decisions') ||
+          root.querySelector('#decisions_fb');
+
+        if (worklog) {
+          if (worklog.value && !worklog.value.endsWith('\n')) {
+            worklog.value += '\n';
+          }
+          worklog.value += logLine;
+          worklog.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }
+    });
 }
+
 window.renderSituation = renderSituation;
 /* ---------------- RECOVERY ---------------- */
 
@@ -10086,24 +10269,44 @@ function buildDrCopyHtml(root) {
   const drTable = root.querySelector('#drSituationContainer table');
   if (!drTable) return '';
 
-  const rows = [];
   const BORDER = '#dbe3f0';
-  const BLUE = '#134094';
+  const BLUE   = '#134094';
   const YELLOW = '#ffdd00';
-  const DARK = '#0f172a';
+  const DARK   = '#0f172a';
+
+  // ✅ DR inclusion rule
+  const includeSituation =
+    root._drState?.includeInSitrep === true;
+
+  const rows = [];
 
   previewRows.forEach(tr => {
-    const th = tr.querySelector('th')?.textContent?.trim();
+    const th = tr.querySelector('th')?.textContent?.trim() || '';
     const td = tr.querySelector('td')?.innerHTML ?? '—';
 
-    // ✅ Replace Situation block
+    /* =========================================================
+       ✅ Situation handling (THIS WAS MISSING)
+       ========================================================= */
     if (th === 'Situation') {
+      // ⛔ Skip entirely if checkbox unchecked
+      if (!includeSituation) {
+        return;
+      }
+
+      // ✅ Include DR recovery grid if allowed
       rows.push(`
         <tr>
-          <td style="border:1px solid ${BORDER};background:${YELLOW};padding:8px;font-weight:800;color:${BLUE};">
+          <td style="border:1px solid ${BORDER};
+                     background:${YELLOW};
+                     padding:8px;
+                     font-weight:800;
+                     color:${BLUE};">
             Situation
           </td>
-          <td style="border:1px solid ${BORDER};background:${YELLOW};padding:0;" colspan="3">
+          <td style="border:1px solid ${BORDER};
+                     background:${YELLOW};
+                     padding:0;"
+              colspan="3">
             ${buildDrSituationGrid(drTable)}
           </td>
         </tr>
@@ -10111,13 +10314,23 @@ function buildDrCopyHtml(root) {
       return;
     }
 
-    // ✅ Normal rows (keep untouched)
+    /* =========================================================
+       ✅ Normal rows
+       ========================================================= */
     rows.push(`
       <tr>
-        <td style="border:1px solid ${BORDER};background:${YELLOW};padding:6px;font-weight:800;color:${BLUE};">
+        <td style="border:1px solid ${BORDER};
+                   background:${YELLOW};
+                   padding:6px;
+                   font-weight:800;
+                   color:${BLUE};">
           ${th}
         </td>
-        <td style="border:1px solid ${BORDER};background:${YELLOW};padding:6px;color:${DARK};" colspan="3">
+        <td style="border:1px solid ${BORDER};
+                   background:${YELLOW};
+                   padding:6px;
+                   color:${DARK};"
+            colspan="3">
           ${td}
         </td>
       </tr>
@@ -10125,12 +10338,15 @@ function buildDrCopyHtml(root) {
   });
 
   return `
-    <table style="width:100%;border-collapse:collapse;font-family:Calibri,Segoe UI,Arial,sans-serif;font-size:14px;">
+    <table
+      style="width:100%;
+             border-collapse:collapse;
+             font-family:Calibri,Segoe UI,Arial,sans-serif;
+             font-size:14px;">
       ${rows.join('')}
     </table>
   `;
 }
-
 window.buildDrCopyHtml = buildDrCopyHtml;
 
 
@@ -10282,62 +10498,26 @@ function buildSummaryTable() {
   const tbody = document.querySelector('#summaryTable tbody');
   if (!tbody) return;
 
-  tbody.innerHTML = '';
-
-  /* =========================================================
-     1️⃣ Restore from summaryState IF user has edited before
-     ========================================================= */
-  if (summaryState.hasUserEdits && summaryState.rows.length) {
-    summaryState.rows.forEach(r => {
-      const tr = document.createElement('tr');
-
-      tr.innerHTML = `
-        <td style="font-weight:700;color:${r.color};">${r.incident}</td>
-        <td>${r.severity || '—'}</td>
-        <td>${r.impacted || '—'}</td>
-        <td>${r.description || '—'}</td>
-        <td>
-          <textarea rows="2" style="width:100%;">${r.status || ''}</textarea>
-        </td>
-        <td>${r.reported || '—'}</td>
-        <td>
-          <input type="datetime-local" value="${r.restored || ''}" />
-        </td>
-        <td>
-          <button class="btn secondary summary-remove">Remove</button>
-        </td>
-      `;
-
-      tr.querySelector('.summary-remove').addEventListener('click', () => {
-        tr.remove();
-        if (!tbody.children.length) {
-          summaryState.hasUserEdits = false;
-          summaryState.rows = [];
-        }
-      });
-
-      tbody.appendChild(tr);
-    });
-
-    return; // ✅ leave restore logic untouched
+  // ✅ Ensure storage exists
+  if (!summaryState.byIncidentId) {
+    summaryState.byIncidentId = Object.create(null);
   }
 
-  /* =========================================================
-     2️⃣ Build summary fresh from incidents (FIXED)
-     ========================================================= */
-  const incidentRoots = document.querySelectorAll(
-    '#workspace .incident, #parking .incident'
-  );
+  tbody.innerHTML = '';
+
+  const incidentRoots =
+    document.querySelectorAll('#workspace .incident, #parking .incident');
 
   incidentRoots.forEach(root => {
+    const incidentId = root.dataset.incidentId;
+    if (!incidentId) return;
+
     const incNo =
       root.querySelector('#incidentNumber')?.value?.trim() || '—';
 
     const severity =
       root.querySelector('#severity')?.value?.trim() || '—';
 
-    /* ✅ SINGLE SOURCE OF TRUTH
-       Summary → Sit‑Rep → Impacted Areas */
     const impacted =
       root.querySelector('#impactAreas')?.value?.trim() || '—';
 
@@ -10351,8 +10531,6 @@ function buildSummaryTable() {
       root.querySelector('#updateCode')?.value || '';
 
     const isDr = isDrDeclared(root);
-
-    // ✅ Correct inclusion logic
     const includeIncident =
       isDr || (startTs && isToday(startTs));
 
@@ -10364,9 +10542,14 @@ function buildSummaryTable() {
     const reported =
       startTs ? startTs.replace('T', ' ') : '—';
 
-    const displayIncNo = isDr ? `[DR] ${incNo}` : incNo;
+    const displayIncNo =
+      isDr ? `[DR] ${incNo}` : incNo;
+
+    // ✅ Read ONLY from state
+    const saved = summaryState.byIncidentId[incidentId] || {};
 
     const tr = document.createElement('tr');
+    tr.dataset.incidentId = incidentId;
 
     tr.innerHTML = `
       <td style="font-weight:700;color:${color};">${displayIncNo}</td>
@@ -10374,23 +10557,34 @@ function buildSummaryTable() {
       <td>${impacted}</td>
       <td>${desc}</td>
       <td>
-        <textarea rows="2" style="width:100%;"></textarea>
+        <textarea rows="2" style="width:100%;">${saved.status || ''}</textarea>
       </td>
       <td>${reported}</td>
       <td>
-        <input type="datetime-local" />
+        <input type="datetime-local" value="${saved.restored || ''}" />
       </td>
       <td>
         <button class="btn secondary summary-remove">Remove</button>
       </td>
     `;
 
+    // ✅ Persist edits IMMEDIATELY
+    const ta = tr.querySelector('textarea');
+    const input = tr.querySelector('input[type="datetime-local"]');
+
+    ta.addEventListener('input', () => {
+      summaryState.byIncidentId[incidentId] ??= {};
+      summaryState.byIncidentId[incidentId].status = ta.value;
+    });
+
+    input.addEventListener('change', () => {
+      summaryState.byIncidentId[incidentId] ??= {};
+      summaryState.byIncidentId[incidentId].restored = input.value;
+    });
+
     tr.querySelector('.summary-remove').addEventListener('click', () => {
+      delete summaryState.byIncidentId[incidentId];
       tr.remove();
-      if (!tbody.children.length) {
-        summaryState.hasUserEdits = false;
-        summaryState.rows = [];
-      }
     });
 
     tbody.appendChild(tr);
@@ -10400,56 +10594,59 @@ function buildSummaryTable() {
 window.buildSummaryTable = buildSummaryTable;
 function addManualSummaryRow() {
   const tbody = document.querySelector('#summaryTable tbody');
+  if (!tbody) return;
 
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>
-      <input type="text" placeholder="Incident #" style="width:100%;" />
-      <select>
-        <option value="red">🔴 Open</option>
-        <option value="green">🟢 Resolved</option>
-      </select>
-    </td>
-    <td><input type="text" placeholder="S1/S2/S3" /></td>
-    <td><input type="text" /></td>
-    <td><input type="text" /></td>
-    <td><textarea rows="2"></textarea></td>
-    <td><input type="datetime-local" /></td>
-    <td><input type="datetime-local" /></td>
-    <td>
-      <button class="btn secondary summary-remove">Remove</button>
-    </td>
-  `;
+  // ✅ Ensure Summary state exists
+  if (!summaryState.customRows) summaryState.customRows = [];
+  if (!summaryState.byIncidentId) summaryState.byIncidentId = Object.create(null);
 
-  const sel = tr.querySelector('select');
-  const incInput = tr.querySelector('input[type="text"]');
+  /* =========================================================
+     1️⃣ Create a NEW Incident first
+     ========================================================= */
 
-  sel.addEventListener('change', () => {
-    incInput.style.color =
-      sel.value === 'green' ? '#16a34a' : '#d92d20';
-    incInput.style.fontWeight = '700';
-  });
+  const incidentId = createIncident('Manual Incident');
+  const incidentRoot =
+    document.querySelector(`.incident[data-incident-id="${incidentId}"]`);
 
-  tr.querySelector('.summary-remove')
-    .addEventListener('click', () => {
-        
-        tr.remove();
-    
-        const tbody = document.querySelector('#summaryTable tbody');
-    if (!tbody.children.length) {
-      summaryState.hasUserEdits = false; // ✅ allow rebuild
-      summaryState.rows = [];
-    }
+  if (!incidentRoot) return;
 
-    
-    }
+  /* =========================================================
+     2️⃣ Create a Summary custom row model
+     ========================================================= */
 
+  const rowId = 'SR-' + Date.now();
 
-);
+  const rowModel = {
+    id: rowId,
+    incidentId,
+    incident: '',
+    severity: '',
+    impacted: '',
+    description: '',
+    status: '',
+    reported: '',
+    restored: ''
+  };
 
-  tbody.appendChild(tr);
+  summaryState.customRows.push(rowModel);
+
+  /* =========================================================
+     3️⃣ Populate Sit‑Rep defaults
+     ========================================================= */
+
+  const now = new Date();
+  const isoNow = now.toISOString().slice(0, 16);
+
+  incidentRoot.querySelector('#incidentNumber').value = `INC-${incidentId.slice(-6)}`;
+  incidentRoot.querySelector('#startTs').value = isoNow;
+  incidentRoot.querySelector('#severity').value = '';
+
+  /* =========================================================
+     4️⃣ Rebuild Summary (row will appear)
+     ========================================================= */
+
+  buildSummaryTable();
 }
-
 window.addManualSummaryRow = addManualSummaryRow;
 
 
@@ -10554,20 +10751,35 @@ window.copySummaryToTeams = copySummaryToTeams;
 
   
 document.getElementById('btnSummary')?.addEventListener('click', () => {
-  buildSummaryTable();
-
   const dlg = document.getElementById('summaryModal');
   if (!dlg) return;
 
-  // ✅ wire buttons AFTER modal is present
-  dlg.querySelector('#summaryAddRow').onclick = addManualSummaryRow;
-  dlg.querySelector('#summaryCopyTeams').onclick = copySummaryToTeams;
-  dlg.querySelector('#summaryClose').onclick = () => 
-  {
-    saveSummaryState();    
+  // ✅ If already open (modal or non‑modal), close first
+  if (dlg.open) {
     dlg.close();
   }
-  dlg.querySelector('#summaryExportExcel').onclick = exportSummaryToExcel;
+
+  // ✅ Build summary BEFORE showing modal
+  buildSummaryTable();
+
+  // ✅ Wire buttons safely (no duplicates)
+  const addRowBtn = dlg.querySelector('#summaryAddRow');
+  const copyBtn = dlg.querySelector('#summaryCopyTeams');
+  const closeBtn = dlg.querySelector('#summaryClose');
+  const exportBtn = dlg.querySelector('#summaryExportExcel');
+
+  if (addRowBtn) addRowBtn.onclick = addManualSummaryRow;
+  if (copyBtn) copyBtn.onclick = copySummaryToTeams;
+  if (exportBtn) exportBtn.onclick = exportSummaryToExcel;
+
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      saveSummaryState();
+      dlg.close();
+    };
+  }
+
+  // ✅ Open ONLY as modal
   dlg.showModal();
 });
 
@@ -10670,7 +10882,7 @@ window.exportSummaryToExcel = exportSummaryToExcel;
 // Standalone-safe guard for popup usage (file:// mode)
 // =======================================================
 (function () {
-  if (location.protocol === 'file:') {
+ /** if (location.protocol === 'file:') {
     const originalOpen = window.open;
 
     window.open = function () {
@@ -10683,7 +10895,7 @@ window.exportSummaryToExcel = exportSummaryToExcel;
     console.info(
       '[Standalone Mode Enabled] Popups disabled (file:// execution)'
     );
-  }
+  }**/
 })();
 
 function openDrQuestionnaire(root) {
@@ -10720,7 +10932,6 @@ function openDrQuestionnaire(root) {
 window.openDrQuestionnaire = openDrQuestionnaire; // expose for dynamic calls  
 
 
-
 function collectDrAnswers(modal) {
   const data = [];
 
@@ -10753,9 +10964,172 @@ function collectDrAnswers(modal) {
 }
 window.collectDrAnswers = collectDrAnswers;
 
+async function copyDrRecoveryProgress(root) {
+  const table = root.querySelector(
+    '#drSituationContainer .dr-situation-table'
+  );
+
+  if (!table) {
+    alert('No recovery progress table found.');
+    return;
+  }
+
+  // ✅ Clone table to avoid DOM mutation
+  const clone = table.cloneNode(true);
+  clone.style.borderCollapse = 'collapse';
+
+  const rows = Array.from(clone.rows);
+  const headerColor = '#134094';   // HKJC blue
+  const recoveredColor = '#16a34a'; // Green
+
+  rows.forEach((row, rowIndex) => {
+    const cells = Array.from(row.cells);
+
+    cells.forEach((cell, cellIndex) => {
+      // Base table styling (Teams-friendly)
+      cell.style.border = '1px solid #999';
+      cell.style.padding = '6px';
+      cell.style.textAlign = 'center';
+      cell.style.fontFamily = 'Segoe UI, Arial, sans-serif';
+      cell.style.fontSize = '13px';
+
+      /* =====================================================
+         ✅ Header rule: first row OR first column
+         ===================================================== */
+      if (rowIndex === 0 || cellIndex === 0) {
+        cell.style.color = headerColor;
+        cell.style.fontWeight = '700';
+      }
+    });
+
+    /* =====================================================
+       ✅ 100% recovered rule
+       First column + last column → green
+       ===================================================== */
+    if (rowIndex > 0) {
+      const lastCell = cells[cells.length - 1];
+      const value = lastCell.textContent.trim();
+
+      // Accept "100%" or "100"
+      if (value === '100%' || value === '100') {
+        // First column
+        cells[0].style.color = recoveredColor;
+        cells[0].style.fontWeight = '700';
+
+        // Last column
+        lastCell.style.color = recoveredColor;
+        lastCell.style.fontWeight = '700';
+      }
+    }
+  });
+
+  const html = `
+    <div style="font-family:Segoe UI, Arial, sans-serif;">
+      ${clone.outerHTML}
+    </div>
+  `;
+
+  // Plain text fallback
+  const text = Array.from(table.rows)
+    .map(row =>
+      Array.from(row.cells)
+        .map(c => c.textContent.trim())
+        .join('\t')
+    )
+    .join('\n');
+
+  try {
+    if (navigator.clipboard && window.ClipboardItem) {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([text], { type: 'text/plain' })
+        })
+      ]);
+    } else {
+      await navigator.clipboard.writeText(text);
+    }
+
+    alert('Recovery Progress copied. Paste directly into Teams.');
+  } catch (err) {
+    console.error(err);
+    alert('Copy failed.');
+  }
+}
+window.copyDrRecoveryProgress = copyDrRecoveryProgress;
+
+
+function hasAnsweredDrQuestionnaire() {
+  // ✅ Dialog lives at document level, NOT under root
+  const dialog = document.getElementById('drQuestionnaireModalr');
+  if (!dialog || !dialog.open) return false;
+
+  // ✅ Any radio selected?
+  if (dialog.querySelector('input[type="radio"]:checked')) {
+    return true;
+  }
+
+  // ✅ Any textarea filled?
+  const anyTextEntered = Array
+    .from(dialog.querySelectorAll('textarea'))
+    .some(t => t.value.trim().length > 0);
+
+  return anyTextEntered;
+}
+
+window.hasAnsweredDrQuestionnaire = hasAnsweredDrQuestionnaire;
+
+function buildDrQuestionnaireCopy() {
+  // ✅ Dialog is NOT under root
+  const container = document.getElementById('drQuestionnaireModalr');
+  if (!container || !container.open) return '';
+
+  const lines = [];
+
+  // ✅ Correct question block selector
+  container.querySelectorAll('.dr-q-block').forEach(block => {
+    const questionText =
+      block.querySelector('.dr-q-title')?.textContent.trim();
+
+    if (!questionText) return;
+
+    // ✅ Radio answer (Yes / No)
+    const checkedRadio =
+      block.querySelector('input[type="radio"]:checked');
+
+    if (checkedRadio) {
+      lines.push(`${questionText}: ${checkedRadio.value}`);
+    }
+
+    // ✅ Any filled textareas (sub‑questions)
+    block.querySelectorAll('textarea').forEach(ta => {
+      const value = ta.value.trim();
+      if (value) {
+        const labelText =
+          ta.closest('label')?.textContent
+            ?.replace(value, '')
+            ?.trim();
+
+        lines.push(
+          labelText
+            ? `${labelText}: ${value}`
+            : `${questionText}: ${value}`
+        );
+      }
+    });
+  });
+
+  return lines.join('\n');
+}
+
+window.buildDrQuestionnaireCopy = buildDrQuestionnaireCopy;
+
+
+function copyPlainTextForQuestionnaire(text) {
+  navigator.clipboard.writeText(text);
+}
+window.copyPlainTextForQuestionnaire = copyPlainTextForQuestionnaire;
 
 </script>
-
-
 
 </html>
