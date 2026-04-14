@@ -4000,6 +4000,7 @@ function tablePreviewToText(root) {
     })
     .join('\n');
 }
+
 function previewYellowHtml(root) {
   const BORDER = '#dbe3f0',
         BLUE   = '#134094',
@@ -4009,46 +4010,55 @@ function previewYellowHtml(root) {
   const isDr = root.querySelector('#drToggle')?.checked;
   const includeSit =
     !isDr || root._drState?.includeInSitrep === true;
-  console.log('Preview render: isDr=', isDr, 'includeSit=', includeSit);
+
   const rows = $$('#previewTable tr', root)
     .filter(tr => {
-      const th = tr.querySelector('th')?.textContent.trim() || '';
-      // ✅ HARD RULE: exclude Situation when checkbox unchecked
-      if (isDr && !includeSit && th === 'Situation') return false;
-      // Also respect any hidden rows
+      const label = tr.querySelector('th')?.textContent.trim() || '';
+      if (isDr && !includeSit && label === 'Situation') return false;
       if (tr.style.display === 'none') return false;
       return true;
     })
     .map(tr => {
-      const th = tr.querySelector('th')?.textContent.trim() || '';
+      const label = tr.querySelector('th')?.textContent.trim() || '';
       const tdHtml = tr.querySelector('td')?.innerHTML || '—';
-
-      const left = `
-        <div style="background:${YELLOW};padding:6px 8px;">
-          <span style="color:${BLUE};font-weight:800;">
-            ${escapeHtml(th)}
-          </span>
-        </div>`;
-
-      const right = `
-        <div style="background:${YELLOW};padding:6px 8px;color:${DARK};">
-          ${tdHtml}
-        </div>`;
 
       return `
         <tr>
-          <td style="border:1px solid ${BORDER};width:260px;padding:0;">
-            ${left}
+          <td
+            bgcolor="${YELLOW}"
+            style="
+              border:1px solid ${BORDER};
+              width:260px;
+              vertical-align:top;
+              font-weight:800;
+              color:${BLUE};
+            ">
+            ${escapeHtml(label)}
           </td>
-          <td style="border:1px solid ${BORDER};padding:0;">
-            ${right}
+
+          <td
+            bgcolor="${YELLOW}"
+            style="
+              border:1px solid ${BORDER};
+              vertical-align:top;
+              color:${DARK};
+            ">
+            ${tdHtml}
           </td>
         </tr>`;
     })
     .join('');
 
   return `
-    <table style="width:100%;border-collapse:collapse;">
+    <table
+      cellpadding="0"
+      cellspacing="0"
+      style="width:100%;border-collapse:collapse;"
+    >
+      <colgroup>
+        <col align="left">
+        <col align="left">
+      </colgroup>
       ${rows}
     </table>`;
 }
